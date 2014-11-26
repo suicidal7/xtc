@@ -25,6 +25,7 @@ document.registerElement('xtc-xsocket', {prototype: Object.create(HTMLElement.pr
 			clearTimeout(this._xtc.detachTimer);
 			delete this._xtc.detachTimer;
 		}
+		me.connect();
 	} },
 	
 	detachedCallback: { value: function() {
