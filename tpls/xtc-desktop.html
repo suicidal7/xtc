@@ -56,6 +56,8 @@ console.log('xtc-desktop created callback');
 			this._xtc.lastParent = this.parentNode;
 			this.focus();
 			
+			this.querySelector('xtc-xsocket').setAttribute('data-x-host', document.location.origin.replace('http://','ws://').replace('https://','wss://'));
+			
 			var me = this;
 			var btn = this.querySelector('xtc-pills-launcher');
 			var keys = this.querySelector('xtc-keybinder');
