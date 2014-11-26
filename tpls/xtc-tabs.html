@@ -1,0 +1,212 @@
+
+
+<template id="xtc-tabs">
+	<xtc-keybinder></xtc-keybinder>
+	<map></map>
+	<main><content></content></main>
+</template>
+
+
+<script type="text/javascript">
+
+
+document.registerElement('xtc-tabs', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		//~ var tpl = document.getElementById( this.tagName.toLowerCase() );
+		//~ var clone = document.importNode(tpl.content, true);
+		//~ this.appendChild(clone);
+		
+		var me = this;
+		me._xtc={};
+		me._xtc.tabCycle = [];
+		
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		var shadowRoot = me.createShadowRoot();
+		shadowRoot.appendChild(clone);
+		
+		//~ this.setAttribute('tabindex','-1');
+		me._xtc.tabs = me.querySelector('::shadow>map');
+		
+		me._xtc.observer = new MutationObserver(function(mutations) {
+//~ console.log('mutations: xtc-tabs', mutations);
+			var rec;
+			for(var m=0; m<mutations.length; m++) {
+				rec = mutations[m];
+				if ( rec.type=='childList' ) {
+					me.addTabs( rec.addedNodes );
+					me.removeTabs( rec.removedNodes );
+				}
+				else if (rec.type == 'attributes' ) {
+					if ( rec.attributeName == 'selected' ) {
+						me.onSelectedAttribute( rec );
+					} //if ( rec.attributeName == 'selected' ) {
+					else if ( rec.attributeName == 'data-title' && rec.target.parentNode==me && rec.target.tagName=='ARTICLE' ) {
+						var btn = me._xtc.tabs.querySelector('[href="#'+rec.target.getAttribute('data-uid')+'"]');
+console.log('childmutations on tabs', rec.type, rec.attributeName, rec.target, btn);
+						if ( btn ) {
+							btn.innerHTML = rec.target.getAttribute('data-title');
+						}
+					}
+				}
+			}
+		});
+		//watch whoever is filling container
+		me._xtc.observer.observe(me, {childList: true });
+		
+		
+		me._xtc.tabs.addEventListener('click', function(ev) {
+			var t = ev.target;
+			while(t.parentNode!==me._xtc.tabs) t=t.parentNode;
+			t.setAttribute('selected', 'selected');
+			ev.preventDefault();
+			ev.stopPropagation();
+			return false;
+		});
+	
+		//initialize any children that are already in here
+		me.addTabs(me.children);
+		
+		shadowRoot.querySelector('main').setAttribute('tabindex','-1');
+		var keys = shadowRoot.querySelector('xtc-keybinder');
+		if ( keys ) {
+			keys.bindKey('Ctrl+PageUp', function() {
+				me.tabCycle(-1);
+			});
+			keys.bindKey('Ctrl+PageDown', function() {
+				me.tabCycle(1);
+			});
+			keys.bindKey('Ctrl+`', function() {
+				me._xtc.tabCycleStarted = true;
+				me.tabCycle();
+			},null,null, function() {
+				me._xtc.tabCycleStarted = false;
+				//make it jump to end of cycle chain!
+				me.onSelectedAttribute({attributeName: 'selected', target: me._xtc.tabs.querySelector('[selected]') });
+			});
+			
+			var bindCtrlN = function(n) {
+				var k = n==0 ? 9 : n-1;
+				keys.bindKey('Ctrl+'+n, function() {
+					var btn = me._xtc.tabs.children[k];
+					if ( btn ) btn.setAttribute('selected', 'selected');
+				});
+			};
+			
+			for(var n=0; n<10; n++) {
+				bindCtrlN(n);
+			}
+		}
+	} },
+	
+	addTabs: { value: function(arts) {
+		var article;
+		var me = this;
+		for(var i=0; i<arts.length; i++) {
+			article = arts[i];
+			if ( article.parentNode!=me || article.tagName != 'ARTICLE' ) continue;
+			var btn = document.createElement('a');
+			var uid = article.getAttribute('data-uid') || 't'+xtc.uuid();
+			btn.innerHTML = article.getAttribute('data-title') || uid;
+			btn.setAttribute('href','#'+uid);
+			btn.classList.add('button');
+			btn.__linkedDoc = article;
+			me._xtc.tabs.appendChild(btn);
+			me._xtc.tabCycle.push(btn);
+			
+			
+			me._xtc.observer.observe(btn, {attributes: true, attributeFilter: ['selected']});
+			me._xtc.observer.observe(article, {attributes: true, attributeFilter: ['selected', 'data-title']});
+		}
+		if ( btn ) btn.setAttribute('selected','selected');
+	} },
+	
+	removeTabs: { value: function(arts) {
+		for(var i=0; i<arts.length; i++) {
+			if ( arts[i].tagName != 'ARTICLE' ) continue;
+			//TODO:
+			
+		}
+	} },
+
+	tabCycle: { value: function(val) {
+		var idx
+			, me = this
+			, btn = me._xtc.tabs.querySelector('[selected]')
+		;
+		
+		if ( !btn ) btn = me._xtc.tabs.querySelector('a');
+		if ( !btn ) return;
+		
+		if ( arguments.length < 1 ) {
+			idx = me._xtc.tabCycle.indexOf(btn);
+			if ( idx<0 ) return; //foobaR?!!
+			if ( idx<1 ) idx=me._xtc.tabCycle.length-1;
+			else idx--;
+			
+			if ( idx < me._xtc.tabCycle.length )
+				me._xtc.tabCycle[idx].setAttribute('selected', 'selected');
+		}
+		else if (me._xtc.tabCycle.length) {
+			var which = val>0 ? {next: 'nextSibling',other: 'firstChild'} : {next: 'previousSibling',other: 'lastChild'};
+			
+			if ( btn[which.next] ) btn[which.next].setAttribute('selected', 'selected');
+			else me._xtc.tabs[ which.other ].setAttribute('selected', 'selected');
+			
+		}
+		
+	} },
+
+	onSelectedAttribute: { value: function(rec) { 
+		var me = this;
+		var isSel = rec.target.hasAttribute(rec.attributeName);
+		//~ if (!window.FOOBAR) window.FOOBAR=1;
+		//~ if (rec.target) return;
+//~ console.log('selected',window.FOOBAR, isSel, '|->',rec.target.tagName, '<-|', rec);
+		//~ window.FOOBAR++;
+		//~ if (window.FOOBAR>20) return;
+//~ return;
+		if ( me._xtc.tabs.contains(rec.target) ) { //tab getting selected
+			btn = rec.target;
+			if ( isSel ) {
+//~ console.log('IS SELECTED DOC', btn.__linkedDoc.getAttribute('selected'));
+				if ( !btn.__linkedDoc.hasAttribute('selected') ) {
+					btn.__linkedDoc.setAttribute('selected', 'selected');
+					btn.__linkedDoc.focus();
+					btn.__linkedDoc.fireEvent('focus');
+				}
+				//unselect any other selected docs!
+				var others = me._xtc.tabs.querySelectorAll('[selected]');
+				for(var k=0; k<others.length; k++) {
+					if ( others[k]!== btn ) {
+//~ console.log('should remove selected!', others[k]);
+						others[k].removeAttribute('selected');
+					}
+				}
+			}
+			else {
+				btn.__linkedDoc.removeAttribute('selected');
+			}
+		}
+		else if (rec.target.parentNode==me) { //doc getting selected
+			btn = me._xtc.tabs.querySelector('[href="#'+rec.target.getAttribute('data-uid')+'"]');
+			if ( btn ) {
+				if ( isSel ) {
+					if ( !btn.hasAttribute('selected') )
+						btn.setAttribute('selected', 'selected');
+				}
+				else btn.removeAttribute('selected');
+			}
+		}
+		
+		//push it to end of stack for tab cycle, unless we didnt release ctrl yet!
+		if ( isSel && !me._xtc.tabCycleStarted && btn ) {
+			var idx = me._xtc.tabCycle.indexOf(btn);
+			if ( idx>-1 ) me._xtc.tabCycle.splice(idx,1);
+			me._xtc.tabCycle.push(btn);
+		}
+	} },
+
+}))});
+
+</script>

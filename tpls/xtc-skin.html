@@ -1,0 +1,227 @@
+<style>
+xtc-skin {
+	flex: 1 1 auto;
+	align-self: stretch;
+	display: flex;
+}
+</style>
+
+
+<template id="xtc-skin-skin2">
+	<style>
+	</style>
+</template>
+
+<script type="text/javascript">
+
+
+
+document.registerElement('xtc-skin', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var me = this;
+		//TODO: FIX MEEEEE
+		var observer = new MutationObserver(function(mutations) {
+//~ console.log('mutations: xtc-skin', mutations);
+			var rec;
+//~ console.log('Mutations', me, mutations);
+			for(var i=0; i<mutations.length; i++) {
+				rec = mutations[i];
+//~ console.log('appl mutation rec', rec);
+				if ( rec.type == 'attributes' ) {
+					//~ console.log('skin mutations', rec.target.getAttribute('xtc-skin'));
+					if ( rec.target === me ) {
+						me.$skin = me.getAttribute('data-skin');
+					}
+					else me.applyElSkin(rec.target);
+				}
+				else if ( rec.type=='childList' &&  me._skinName ) {
+//~ console.log("trying to skin --------------------", rec.addedNodes);
+					me.skinNodes( rec.addedNodes );
+				}
+			}
+		});
+		
+		observer.observe(this, {childList: true, attributes: true, subtree: true, attributeFilter: ['data-skin']});
+	}},
+	
+	attachedCallback: { value: function() {
+		this.$skin = this.getAttribute('data-skin');
+	} },
+	
+	$skin: {
+		set: function(s) {
+			var me = this;
+			
+			if ( this._skinName ) {
+				me.skinNodes(me.querySelectorAll('*'), true);
+			}
+			this._tpls = document.getElementById( 'xtc-skin-'+s );
+			if ( !this._tpls ) return;
+			
+			if ( !this._currentTplContainer ) {
+				this._currentTplContainer = document.createElement('div');
+				this._currentTplContainer.style.display= 'none';
+				if ( this.firstChild ) {
+					this.insertBefore( this._currentTplContainer, this.firstChild );
+				}
+				else {
+					this.appendChild( this._currentTplContainer );
+				}
+			}
+			this._currentTplContainer.innerHTML = '';
+			
+			var clone = document.importNode(this._tpls.content, true);
+			for(var i=clone.children.length-1; i>-1; i--) {
+				if ( clone.children[i].tagName=='TEMPLATE' ) {
+					clone.children[i].remove();
+				}
+			}
+			this._currentTplContainer.appendChild(clone);
+
+//~ document.onreadystatechange = function() {
+	//~ console.log('doc state changed detected', arguments);
+			me._skinName = s || 'base';
+			me._skinInfo = xtc.skins[ s ] || {};
+console.log('skinInfo', s, me._skinInfo);
+console.log('appl setting template', 'xtc-skin-'+s, me._tpls);
+			me.skinNodes(this.querySelectorAll('*'));
+//~ };
+
+		},
+		get: function() {
+			return this._skinName;
+		},
+	},
+	
+	
+	skinNodes: { value: function(nodes, unskin) {
+		if ( !nodes ) return;
+		var node;
+		var me = this;
+//~ console.log('skinNodes called', nodes.length);
+var foo=nodes.length;
+
+		for(var k=0; k<nodes.length; k++) {
+			node = nodes[k];
+
+if ( 1 ) { //only apply longest matching template
+			var longestMatch = {};
+			for(var skinSel in me._skinInfo ) {
+				if ( me._skinInfo.hasOwnProperty(skinSel) ) {
+					if ( node.matches && node.matches(skinSel) ) {
+						if ( !longestMatch.skinSel || skinSel.length > longestMatch.skinSel.length ) {
+							longestMatch.skinSel = skinSel;
+							longestMatch.node = node;
+						}
+					}
+				}
+			}
+			if ( longestMatch.skinSel ) {
+				if ( unskin ) {
+					me.applyElUnskin( longestMatch.node, longestMatch.skinSel );
+				}
+				else {
+					me.applyElSkin( longestMatch.node, longestMatch.skinSel );
+				}
+			}
+}
+
+
+if ( 0 ) {
+//apply all?!
+for(var skinSel in me._skinInfo ) {
+	if ( ! me._skinInfo.hasOwnProperty(skinSel) ) continue;
+if ( skinSel=='xtc-tabs')
+//~ console.log('node matches', node, skinSel);
+	if ( node.matches && node.matches(skinSel) ) {
+		if ( unskin ) {
+			me.applyElUnskin( node, skinSel );
+		}
+		else {
+			me.applyElSkin( node, skinSel );
+		}
+	}
+}
+}
+			
+			//~ console.log('querySelector on', node);
+			
+				if ( node.children ) this.skinNodes( node.children, unskin );
+				
+				if ( node.shadowRoot ) {
+					this.skinNodes( node.shadowRoot.children, unskin );
+					for(var srx in node.shadowRoots ) {
+						if ( node.shadowRoots[srx] != node.shadowRoot ) {
+							this.skinNodes( node.shadowRoots[srx].children, unskin );
+						}
+					}
+				}
+		}
+	} },
+	
+	applyElUnskin: { value: function(el, skinSel) {
+		if ( !el.__SKINNED__ ) el.__SKINNED__ = {};
+		if ( !el.__SKINNED__[this._skinName+'@'+skinSel] ) return;
+		//todo: deal with this business!
+		if ( el.__SKINNED__[this._skinName+'@'+skinSel]!==1 ) el.__SKINNED__[this._skinName+'@'+skinSel].remove(); //shadowRoot?!
+		delete el.__SKINNED__[this._skinName+'@'+skinSel];
+		
+		skinSel = skinSel || el.getAttribute('data-skin');
+		var nfo = this._skinInfo[skinSel];
+		
+		//check if element already has a shadow root, if so, we remove it!?
+		if ( el.shadowRoot ) el.shadowRoot.innerHTML='<content></content>';
+		if (nfo.unskin) nfo.unskin( el );
+	} },
+	
+	applyElSkin: { value: function(el, skinSel) {
+		if ( !el.__SKINNED__ ) el.__SKINNED__ = {};
+		//~ if ( el.__SKINNED__[this._skinName+'@'+skinSel] ) return;
+		//~ el.__SKINNED__[this._skinName+'@'+skinSel] = 1;
+		
+		skinSel = skinSel || el.getAttribute('data-skin');
+		if ( !skinSel || !skinSel.length ) return;
+		
+		if ( el.shadowRoots && el.shadowRoots[ this._skinName+'@'+skinSel ] ) {
+//~ console.log('ALREADY SKINNED', skinSel, el);
+			return;
+		}
+		
+		
+//~ console.log('Applying skin', skinSel, el);
+		var nfo = this._skinInfo[skinSel];
+		var shadowRoot;
+		
+		if ( nfo.skinId ) {
+			var tpl = this._tpls.content.getElementById( nfo.skinId );
+			var clone = document.importNode(tpl.content, true);
+			//~ if ( el.shadowRoot ) el.shadowRoot.innerHTML = '';
+			//~ shadowRoot = el.shadowRoot ? el.shadowRoot : el.createShadowRoot();
+			shadowRoot = el.createShadowRoot();
+			shadowRoot.appendChild(clone);
+			if ( !el.shadowRoots ) el.shadowRoots={};
+			el.shadowRoots[ this._skinName+'@'+skinSel ] = shadowRoot;
+			
+			//~ el.__SKINNED__[this._skinName+'@'+skinSel] = shadowRoot;
+			
+				if ( shadowRoot.styleSheets[0] ) { //todo: do we need to add a sheet or it works in this case?! should test & fix accordingly
+					var keyFrames = xtc.findAllKeyFrames();
+					for(var i=0; i<keyFrames.length; i++) {
+						shadowRoot.styleSheets[0].insertRule( keyFrames[i].cssText, shadowRoot.styleSheets[0].rules.length )
+					}
+				}
+
+			
+		}
+		
+		if (nfo.skin) nfo.skin( el, shadowRoot );
+	}},
+	
+	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
+	
+	} },
+})) });
+
+
+
+</script>

@@ -1,0 +1,142 @@
+
+<script type="text/javascript">
+document.registerElement('xtc-active-pills', {prototype: Object.create(HTMLElement.prototype, xtc.extend({}, {
+	createdCallback: { value: function() {
+		var me = this;
+		me._xtc = {};
+		me._xtc.observer = new MutationObserver(function(mutations) {
+//~ console.log('mutations: xtc-active-pills', mutations);
+			var rec;
+			for(var i=0; i<mutations.length; i++) {
+				rec = mutations[i];
+				if ( rec.type=='childList' ) {
+					me.addButtons(rec.addedNodes);
+					me.removeButtons(rec.removedNodes);
+				}
+				else { 
+//~ console.log('recccc', rec, rec.type=='attributes' , rec.attributeName=='selected' );
+				if ( rec.type=='attributes' && rec.attributeName=='selected' ) {
+					var btn = me.querySelector('[href="#'+rec.target.getAttribute('id')+'"]');
+					if ( rec.target.hasAttribute('selected') ) me.$active=btn;
+					else btn.classList.remove('active');
+				} }
+			}
+		});
+		
+	} },
+	detachedCallback: { value: function() {
+		me._xtc.observer.disconnect();
+	} },
+	attachedCallback: { value: function() {
+		var me = this;
+		var desktop = this.nearest( this.getAttribute('data-desktop') || 'xtc-desktop' );
+		if ( desktop ) {
+			var workspace = desktop.getWorkspace();
+			me._xtc.workspace = workspace;
+			me._xtc.observer.observe( workspace, { childList: true }); 
+		}
+		
+		
+		me.addEventListener('click', function(ev) {
+			var btn = ev.target;
+			while(btn.parentNode!==me) btn=btn.parentNode;
+			
+			if (btn.__WIN__.hasAttribute('minimized')) {
+				btn.__WIN__.removeAttribute('minimized');
+				btn.__WIN__.setAttribute('selected','selected');
+				me.$active = btn;
+			}
+			else {
+				if ( btn.__WIN__.hasAttribute('selected')  ) {
+					btn.__WIN__.setAttribute('minimized', 'minimized');
+				}
+				else {
+					btn.__WIN__.setAttribute('selected','selected');
+				}
+			}
+			
+			//~ console.log('should focus', btn.getAttribute('href'));
+			ev.stopPropagation();
+			ev.preventDefault();
+			return false;
+			
+			/*
+			if ( btn._xtc.__activePill && desktop.getWorkspace().$activeWindow == btn._xtc.__activePill ) {
+				this._xtc._activePillBtn = null;
+				btn._xtc.__activePill.minimize();
+			}
+			else {
+				desktop.getWorkspace().$activeWindow = btn._xtc.__activePill;
+			}*/
+			
+		});
+		
+	} },
+	
+	$active: {
+		set: function(btn) {
+			if ( this._xtc._activePillBtn ) {
+				if ( btn != this._xtc._activePillBtn )
+					this._xtc._activePillBtn.classList.remove('active');
+			}
+			if ( ! btn ) return;
+			btn.classList.add('active');
+			this._xtc._activePillBtn = btn;
+		},
+		get: function(btn) {
+			return this._xtc._activePillBtn;
+		}
+	},
+
+
+	addButtons: { value: function(windows) {
+		if ( !windows ) return;
+		var win,btn;
+		for(var i=0; i<windows.length; i++) {
+			win = windows[i];
+			if ( win.tagName != 'XTC-WINDOW' ) continue;
+			btn = this.querySelector('[href="#'+win.getAttribute('id')+'"]');
+			if ( btn ) {
+				delete btn.__MARKED__;
+			}
+			else {
+				btn = document.createElement('a');
+				btn.setAttribute('href', '#'+win.getAttribute('id'));
+				btn.setAttribute('data-icon', win.$icon);
+				btn.innerHTML=win.$title;
+				btn.__WIN__ = win;
+				this.appendChild(btn);
+				win.$lover = btn;
+console.log('recc observing window selected attr', win.tagName);
+				this._xtc.observer.observe(win, {attributes: true, attributeFilter: ['selected'] } );
+			}
+		}
+		if ( btn ) this.$active=btn;
+	} },
+	removeButtons: { value: function(windows) {
+		if ( !windows ) return;
+		var win,btn;
+		var watch = [];
+		for(var i=0; i<windows.length; i++) {
+			win = windows[i];
+			if ( win.tagName != 'XTC-WINDOW' ) continue;
+			btn = this.querySelector('[href="#'+win.getAttribute('id')+'"]');
+			if ( btn ) {
+				btn.classList.remove('active');
+				btn.__MARKED__=1;
+				watch.push(btn);
+			}
+			//~ if (btn) btn.remove();
+		}
+		if ( watch.length ) {
+			setTimeout(function() {
+				for(var i=0; i<watch.length; i++) {
+					if ( watch[i].__MARKED__ ) watch[i].remove();
+				}
+			},100);
+		}
+	} },
+	
+}))});
+
+</script>

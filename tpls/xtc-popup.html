@@ -1,0 +1,26 @@
+
+<script type="text/javascript">
+
+document.registerElement('xtc-popup', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	show: { value: function(pos, toggle) { 
+		if ( this.classList.contains('show') ) {
+			if ( toggle ) this.hide();
+			return;
+		}
+		this.classList.add('show');
+		
+		if (pos) this.position(pos);
+
+		var me = this;
+		var onClick = function(ev) {
+			window.removeEventListener('click', onClick);
+			me.hide();
+		};
+		
+		window.addEventListener('click', onClick);
+	} },
+	hide: { value: function(opts) { 
+		this.classList.remove('show');
+	} },
+}))});
+</script>

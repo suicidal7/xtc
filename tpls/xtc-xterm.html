@@ -1,0 +1,155 @@
+
+
+<!--
+<template id="xtc-xterm">
+	
+</template>
+-->
+
+<script type="text/javascript" src="js/ext/term.js"></script>
+<script type="text/javascript">
+
+window.__XTERM__UID__ = 1;
+
+document.registerElement('xtc-xterm', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var me = this;
+		me._xtc={};
+		
+		this.setAttribute('tabindex','-1');
+		
+		this._xtc.tid = 'term'+(window.__XTERM__UID__++);
+	} },
+	
+	detachedCallback: { value: function() {
+		if ( this._xtc.detachTimer ) return;
+		var me = this;
+		//we're gonna need to wait a bit and see if its reattached?!
+		this._xtc.detachTimer = setTimeout(function() {
+			console.log('xterm detached... killing term spawn...', me._xtc.tid);
+			if ( me._xtc.xskt ) {
+				me._xtc.xskt.send('termkill', me._xtc.tid);
+				delete me._xtc.xskt;
+			}
+		}, 5000);
+	} },
+	
+	attachedCallback: { value: function() {
+		if ( this._xtc.detachTimer ) {
+			clearTimeout(this._xtc.detachTimer);
+			delete this._xtc.detachTimer;
+		}
+		
+		if ( this._xtc.initialized ) return;
+		
+		this._xtc.initialized = 1;
+	
+		var me = this;
+		this._xtc.xskt = this.closest( this.getAttribute('data-xsocket') || 'xtc-xsocket' );
+		if ( !this._xtc.xskt ) {
+			console.log('failed to find a socket to use');
+			return;
+		}
+		this._xtc.term = new Terminal({
+					cols: 80,
+					rows: 24,
+					useStyle: true,
+					screenKeys: true,
+					cursorBlink: true,
+					termName: 'xterm-color'
+				});
+		
+		this._xtc.term.on('data', function(data) {
+//~ console.log('sending',data,me._xtc.xskt);
+			me._xtc.xskt.send(me._xtc.tid, data);
+		});
+		
+		this._xtc.xskt.on(this._xtc.tid, function(msg) {
+				me._xtc.term.write(msg);
+		});
+		
+		this._xtc.xskt.send('term', this._xtc.tid );
+
+
+		this._xtc.term.open(this);
+		this._xtc.term.write('\x1b[31mConnecting...\x1b[m\r\n');
+		
+		this._xtc.term.on('title', function(title) {
+			//~ console.log('TERM TITLE', title);
+			me.dispatchEvent(new CustomEvent('xtc-window-title', {detail: title + ' - '+me.pillInfo().title}) );
+		});
+		
+		
+		this.addEventListener('focus', function(ev) {
+			if ( ev.target==me )
+				me._xtc.term.focus();
+		});
+		
+		
+		var termEl = me.querySelector('.terminal');
+		var style = window.getComputedStyle( termEl );
+		var rect = me.querySelector('.terminal').getBoundingClientRect();
+		//~ console.log('stylez', style.lineHeight, style.fontSize);
+		
+		
+		//resizeTerm
+		var w = (parseInt(style.width)-parseInt(style.paddingLeft)-parseInt(style.paddingRight))/80;
+		var h = (parseInt(style.height)-parseInt(style.paddingTop)-parseInt(style.paddingBottom))/24;
+//~ console.log('w,h', w, h);
+		
+		var row,col;
+		var timeoutId;
+		var resizeTerm = function(ev, now) {
+			var style = window.getComputedStyle( termEl );
+	
+//~ console.log('new style width=%s/%s, height=%s/%s', style.width, w, style.height, h );
+			rows = Math.floor((parseInt(style.height)-parseInt(style.paddingTop)-parseInt(style.paddingBottom))/h);
+			cols = Math.floor((parseInt(style.width)-parseInt(style.paddingLeft)-parseInt(style.paddingRight))/w);
+
+			var fnResize = function() {
+				timeoutId = 0;
+console.log('TERM SIZE', cols, rows);
+				if (me._xtc.xskt) me._xtc.xskt.send("term-resize", {cols: cols, rows: rows, tid: me._xtc.tid});
+				me._xtc.term.resize(cols, rows);
+				me._xtc.term.focus();
+			};
+
+			if ( !now && ! timeoutId ) {
+				timeoutId = setTimeout(fnResize, 500);
+			}
+			else if ( now ) {
+				fnResize();
+			}
+
+		};
+		resizeTerm(undefined, 1);
+		
+		//throttle resize messages!
+		//~ var resizeTermTimer;
+		//~ var resizeTermTimerFn = function() {
+			//~ if ( resizeTermTimer ) clearTimeout(resizeTermTimer);
+			//~ resizeTermTimer = setTimeout(resizeTerm, 100);
+		//~ };
+	
+		window.addResizeListener(me, resizeTerm);
+	
+	} },
+	
+	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
+		if ( 'data-x-host'==attrName ) {
+			this._xtc.xskt.setAttribute( 'data-x-host', newVal );
+		}
+		
+	} },
+	
+	pillInfo: { value: function() {
+		return {title: 'xTerm', };
+	} },
+	
+	energize: { value: function(args) {
+		this.setAttribute('data-x-host', args || document.location.origin.replace('http://','ws://').replace('https://','wss://') );
+	} },
+
+}))});
+
+</script>

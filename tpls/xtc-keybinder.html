@@ -1,0 +1,125 @@
+
+<script type="text/javascript" src="js/ext/mousetrap.js"></script>
+
+<script type="text/javascript">
+xtc.__keyNames = (function() {
+	var keyNames = {3: "Enter", 8: "Backspace", 9: "Tab", 13: "Enter", 16: "Shift", 17: "Ctrl", 18: "Alt",
+									19: "Pause", 20: "CapsLock", 27: "Esc", 32: "Space", 33: "PageUp", 34: "PageDown", 35: "End",
+									36: "Home", 37: "Left", 38: "Up", 39: "Right", 40: "Down", 44: "PrintScrn", 45: "Insert",
+									46: "Delete", 59: ";", 61: "=", 91: "Mod", 92: "Mod", 93: "Mod", 107: "=", 109: "-", 127: "Delete",
+									173: "-", 186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
+									221: "]", 222: "'", 63232: "Up", 63233: "Down", 63234: "Left", 63235: "Right", 63272: "Delete",
+									63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert"};
+	(function() {
+		// Number keys
+		for (var i = 0; i < 10; i++) keyNames[i + 48] = keyNames[i + 96] = String(i);
+		// Alphabetic keys
+		for (var i = 65; i <= 90; i++) keyNames[i] = String.fromCharCode(i);
+		// Function keys
+		for (var i = 1; i <= 12; i++) keyNames[i + 111] = keyNames[i + 63235] = "F" + i;
+	})();
+	return keyNames;
+})();
+
+document.registerElement('xtc-keybinder', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: {
+		value: function() {
+			this._xtc = {};
+			this._xtc.keyBinds = {};
+			this._xtc.overrideSystemKeys = {}
+		}
+	},
+	attachedCallback: {
+		value: function() {
+			if ( this._xtc.lastParent === this.parentNode ) return;
+			this._xtc.lastParent = this.parentNode;
+
+			
+//~ return;
+			
+			var target = this.parentNode.host ? this.parentNode.host : this.parentNode;
+console.log('key-binds attached to:', target);
+			target.setAttribute('tabindex','1');
+			target.style.outline='0';
+			
+			var me = this;
+				target.addEventListener('keydown', function(ev) {
+//~ console.log('keydOWN AND NEAREST XTc-binder is:', obj, ev.target);
+					if ( me.onKeyDown(ev)=== false ) {
+						ev.preventDefault();
+						ev.stopPropagation();
+						return false;
+					}
+				}, true);
+				
+				target.addEventListener('keyup', function(ev) {
+//~ console.log('keyUP AND NEAREST XTc-binder is:', obj, ev.target);
+					if ( me.onKeyUp(ev)=== false ) {
+						ev.preventDefault();
+						ev.stopPropagation();
+						return false;
+					}
+				}, true);
+				
+		}
+	},
+	onKeyDown: {
+		value: function(ev)  {
+			var key = xtc.__keyNames[ev.keyCode];
+			this._xtc.lastKeyCode = ev.keyCode;
+		//~ console.log('keydown', key);
+			if ( this._xtc.overrideSystemKeys.hasOwnProperty(key) ) {
+					ev.preventDefault();
+					ev.stopPropagation();
+					return false;
+			}
+		}
+	},
+	onKeyUp: {
+		value: function(ev) {
+			var key = xtc.__keyNames[ev.keyCode];
+			var binding = [];
+			if (ev.ctrlKey) binding.push('Ctrl');
+			if (ev.altKey) binding.push('Alt');
+			if (ev.shiftKey) binding.push('Shift');
+			if (ev.modKey) binding.push('Mod');
+			if ( binding.indexOf(key)<0 ) binding.push(key);
+			binding = binding.join('+');
+			if ( this._xtc.lastKeyCode != ev.keyCode ) {
+				var bs = this._xtc.keyBinds[ this._xtc.lastKeyBind ];
+				if ( bs ) {
+					for(var i=0; i<bs.length; i++) {
+						if (bs[i][2]) bs[i][2](ev);
+					}
+				}
+				return; //combination handled?
+			}
+//~ console.log('keyup', binding, this._xtc.keyBinds.hasOwnProperty(binding), this );
+			
+			if ( this._xtc.keyBinds.hasOwnProperty(binding) ) {
+				this._xtc.lastKeyBind = binding;
+				var bs = this._xtc.keyBinds[binding];
+				var isCancel;
+				for(var i=0; i<bs.length && (!bs[i][1] || bs[i][1].contains(ev.target) ) && (isCancel=bs[i][0](ev))!==false; i++);
+				if ( isCancel===false ) {
+					ev.preventDefault();
+					ev.stopPropagation();
+					return false;
+				}
+			}
+		},
+	},
+	bindKey: { value: function( bindings, cb, contain, overrideSystem, onChainDone ) {
+		var me=this;
+		if ( ! ( bindings instanceof Array ) ) bindings = [ bindings ];
+		var binding;
+		for(var i=0; i<bindings.length; i++) {
+			binding=bindings[i];
+			if ( !this._xtc.keyBinds.hasOwnProperty(binding) ) this._xtc.keyBinds[binding] = [];
+			this._xtc.keyBinds[binding].push([cb, contain, onChainDone]);
+			if ( overrideSystem ) this._xtc.overrideSystemKeys[ binding ] = true;
+		}
+	}},
+}))});
+</script>
+

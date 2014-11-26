@@ -1,0 +1,67 @@
+
+
+<template id="xtc-demo">
+	<xtc-text-file-location></xtc-text-file-location>
+	<xtc-tabs>
+		<article data-title="Foobar">
+			<textarea>XXXX1</textarea>
+		</article>
+		<article data-title="Foobar2">
+			<textarea>AAAA2</textarea>
+		</article>
+		<article data-title="Foobar3">
+			<textarea>ASDFAFDSA</textarea>
+		</article>
+		<article data-title="Foobar4">
+			<textarea>44444444</textarea>
+		</article>
+		<article data-title="Foobar5">
+			<textarea>5555</textarea>
+		</article>
+		<article data-title="Foobar6">
+			<textarea>6666</textarea>
+		</article>
+	</xtc-tabs>
+	
+</template>
+
+<script type="text/javascript">
+
+
+document.registerElement('xtc-demo', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		
+		var me = this;
+		me._xtc={};
+		
+		//~ this.setAttribute('tabindex','-1');
+		me.querySelector('xtc-text-file-location').addEventListener('keypress', function(ev) {
+			if ( ev.keyCode==13 ) 
+				console.log('zomg new val', this.value, this.$value, ev.keyCode);
+		});
+		
+		me.querySelector('xtc-tabs').addEventListener('focus', function(ev) {
+			var t = ev.target.querySelector('textarea');
+			t.focus();
+		});
+	} },
+	
+	
+	pillInfo: { value: function() {
+		return {title: 'xDemo', };
+	} },
+	
+	energize: { value: function(args) {
+		var me = this;
+		setTimeout(function() {
+		
+			me.querySelector('xtc-text-file-location').value = '/home/georges/xxf.php';
+		}, 1000);
+	} },
+
+}))});
+
+</script>

@@ -1,0 +1,134 @@
+<template id="xtc-pills-list">
+	<style>
+	:host {
+		padding: 5px;
+		border-radius: 5px;
+		background-color: rgba(0,0,0,0.8);
+		
+		flex: 1 1 auto;
+		align-self: stretch;
+		overflow-y: auto;
+	}
+
+	</style>
+	<content></content>
+</template>
+
+<template id="xtc-pills-list-option">
+	<style>
+	:host {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+		padding: 5px 10px !important;
+		line-height: 24px !important;
+		white-space: nowrap;
+		color: #fff;
+	}
+
+	xtc-icon {
+		width: 24px !important;
+		height: 24px !important;
+		display: inline-block;
+		vertical-align: middle;
+		margin-right: 5px;
+	}
+	</style>
+	<xtc-icon></xtc-icon><content></content>
+</template>
+
+
+
+<template id="xtc-pills-list2">
+	<style>
+	:host {
+		display: flex;
+		flex: 1 1 auto;
+		align-self: stretch;
+		position: relative;
+		overflow-x: auto;
+		overflow-y: hidden;
+		flex-flow: column wrap;
+		align-content: flex-start;
+		align-items: flex-start;
+		justify-content: flex-start;
+		
+		min-width: 200px;
+		min-height: 200px;
+		max-height: 400px;
+		max-width: 600px;
+	}
+	
+	</style>
+	<content></content>
+</template>
+<template id="xtc-pills-list-option2">
+	<style>
+	:host {
+		display: inline-block;
+		text-decoration: none;
+		color: inherit;
+		padding: 5px 10px !important;
+		line-height: 24px !important;
+		white-space: wrap;
+		color: #fff;
+		text-align: center;
+		flex: 1 1 auto;
+		position: relative;
+		max-width:80px;
+		overflow: hidden;
+	}
+	
+	:host(:hover), :host(:focus) {
+		background: #A4F188 !important;
+		color: black;
+		outline: 0;
+	}
+	xtc-icon {
+		margin-right: auto;
+	}
+	</style>
+	<xtc-icon class="i48"></xtc-icon><br><content></content>
+</template>
+
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-pills-list'] = {
+	skinId: 'xtc-pills-list',
+	skin: function(el, shadowEl) {
+	},
+	
+	unskin: function(el) {
+	},
+};
+
+xtc.skins.skin1['xtc-pills-list>a'] = new function() {
+	var me = this;
+	this.skinId = 'xtc-pills-list-option';
+	
+	this.skin = function(el, shadowEl) {
+		shadowEl.querySelector('xtc-icon').setAttribute('is', 'pill-'+ el.getAttribute('href').substr(1) );
+	};
+	
+};
+
+xtc.skins.skin1['xtc-window xtc-pills-list'] = new function() {
+	var me = this;
+	this.skinId = 'xtc-pills-list2';
+	
+	
+};
+
+xtc.skins.skin1['xtc-window xtc-pills-list>a'] = new function() {
+	var me = this;
+	this.skinId = 'xtc-pills-list-option2';
+	
+	this.skin = function(el, shadowEl) {
+		shadowEl.querySelector('xtc-icon').setAttribute('is', 'pill-'+ el.getAttribute('href').substr(1) );
+	};
+	
+};
+
+</script>
+

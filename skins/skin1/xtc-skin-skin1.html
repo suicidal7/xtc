@@ -1,0 +1,161 @@
+	<style>
+	
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Regular'), local('Roboto-Regular'), url('../fonts/Y5yuUJGDLtmYv2_3fMB4fA.woff') format('woff');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/oHi30kwQWvpCWqAhzHcCSD8E0i7KZn-EPnyo3HZu7kw.woff') format('woff');
+}
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Roboto Bold'), local('Roboto-Bold'), url('../fonts/isZ-wbCXNKAbnjo6_TwHTj8E0i7KZn-EPnyo3HZu7kw.woff') format('woff');
+}
+
+
+
+
+
+
+@-webkit-keyframes close {
+  0% {
+    -webkit-transform: scale(1, 1);
+    -moz-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transform: scale(1, 1);
+  }
+  20% {
+    -webkit-transform: scale(1.2, 1.2);
+    -moz-transform: scale(1.2, 1.2);
+    -ms-transform: scale(1.2, 1.2);
+    -o-transform: scale(1.2, 1.2);
+    transform: scale(1.2, 1.2);
+  }
+  100% {
+    -webkit-transform: scale(0, 0);
+    -moz-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+    transform: scale(0, 0);
+  }
+}
+
+@keyframes close {
+  0% {
+    transform: scale(1, 1);
+  }
+  20% {
+    transform: scale(1.2, 1.2);
+  }
+  100% {
+    transform: scale(0, 0);
+  }
+}
+
+@-webkit-keyframes appear {
+  0% {
+    -webkit-transform: scale(0, 0);
+    -moz-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+    transform: scale(0, 0);
+  }
+  80% {
+    -webkit-transform: scale(1.2, 1.2);
+    -moz-transform: scale(1.2, 1.2);
+    -ms-transform: scale(1.2, 1.2);
+    -o-transform: scale(1.2, 1.2);
+    transform: scale(1.2, 1.2);
+  }
+  100% {
+    -webkit-transform: rotate(1, 1);
+    -moz-transform: rotate(1, 1);
+    -ms-transform: rotate(1, 1);
+    -o-transform: rotate(1, 1);
+    transform: rotate(1, 1);
+  }
+}
+
+@-webkit-keyframes hinge { 
+    0% { -webkit-transform: rotate(0); -webkit-transform-origin: top left; -webkit-animation-timing-function: ease-in-out; } 
+    20%, 60% { -webkit-transform: rotate(80deg); -webkit-transform-origin: top left; -webkit-animation-timing-function: ease-in-out; } 
+    40% { -webkit-transform: rotate(60deg); -webkit-transform-origin: top left; -webkit-animation-timing-function: ease-in-out; } 
+    80% { -webkit-transform: rotate(60deg) translateY(0); opacity: 1; -webkit-transform-origin: top left; -webkit-animation-timing-function: ease-in-out; } 
+    100% { -webkit-transform: translateY(700px); opacity: 0; } 
+} 
+
+@-webkit-keyframes tada { 
+    0% {-webkit-transform: scale(1); -webkit-transform-style: preserve-3d !important;} 
+    10%, 20% {-webkit-transform: scale(0.9) rotate(-3deg); -webkit-transform-style: preserve-3d !important;} 
+    30%, 50%, 70%, 90% {-webkit-transform: scale(1.1) rotate(3deg); -webkit-transform-style: preserve-3d !important;} 
+    40%, 60%, 80% {-webkit-transform: scale(1.1) rotate(-3deg); -webkit-transform-style: preserve-3d !important;} 
+    100% {-webkit-transform: scale(1) rotate(0); -webkit-transform-style: preserve-3d !important;} 
+} 
+
+@-webkit-keyframes shakeItBaby {
+	0% { -webkit-transform:         translate(2px, 1px) rotate(0deg); }
+	10% { -webkit-transform:     translate(-1px, -2px) rotate(-2deg); }
+	20% { -webkit-transform:     translate(-3px, 0px) rotate(3deg); }
+	30% { -webkit-transform:     translate(0px, 2px) rotate(0deg); }
+	40% { -webkit-transform:     translate(1px, -1px) rotate(1deg); }
+	50% { -webkit-transform:     translate(-1px, 2px) rotate(-1deg); }
+	60% { -webkit-transform:     translate(-3px, 1px) rotate(0deg); }
+	70% { -webkit-transform:     translate(2px, 1px) rotate(-2deg); }
+	80% { -webkit-transform:     translate(-1px, -1px) rotate(4deg); }
+	90% { -webkit-transform:     translate(2px, 2px) rotate(0deg); }
+	100% { -webkit-transform:     translate(1px, -2px) rotate(-1deg); }
+}
+
+xtc-movable-overlay {
+	background-color: rgba(164, 241, 136, 0.2);
+	border:  1px solid #A4F188;
+}
+
+
+[data-skin=skin1] /deep/ a.button:hover
+, [data-skin=skin1] /deep/  a.button:focus
+, [data-skin=skin1] /deep/  a.button[selected] {
+	background: #A4F188 !important;
+	color: black !important;
+	outline: 0;
+}
+
+[data-skin=skin1] /deep/ a.button {
+	background-color: #2489CC;
+	color: #FFFFFF;
+	text-decoration: none;
+	margin-left: 1px;
+	border-left: medium none;
+	box-sizing: border-box;
+	background: none repeat scroll 0% 0% #3498DB;
+	color: #FFF;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #3498DB #3498DB #268FD5;
+	-moz-border-top-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	border-image: none;
+	outline: 0px none;
+	cursor: pointer;
+	padding: 0px;
+	white-space: nowrap;
+	padding: 5px 20px;
+	line-height: 20px;
+}
+
+
+	</style>
+
+<script type="text/javascript">
+	console.log("SKIN `skin1` definitions injected...");
+</script>

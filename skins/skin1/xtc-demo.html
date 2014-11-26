@@ -1,0 +1,32 @@
+<template id="xtc-demo">
+	<style>
+	:host {
+		min-height: 200px;
+		min-width: 350px;
+		display: flex;
+		flex: 1 1 auto;
+		align-self: stretch;
+		flex-flow: column wrap;
+	}
+	::content>* {
+		flex: 1 1 auto;
+		align-self: stretch;
+	}
+	::content>*:nth-child(1) {
+		flex: 0 1 auto;
+		align-self: auto;
+	}
+	</style>
+	
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-demo'] = {
+	skinId: 'xtc-demo',
+	//~ skin: function(el, shadowEl) {
+	
+	//~ },
+};
+</script>

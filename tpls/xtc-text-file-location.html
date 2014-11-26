@@ -1,0 +1,200 @@
+<template id="xtc-text-file-location">
+	<span></span>
+	<input type="text" list="dlist">
+	<datalist id="dlist">
+	</datalist>
+</template>
+
+<script type="text/javascript">
+
+
+document.registerElement('xtc-text-file-location', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		
+		var me = this;
+		me._xtc={};
+		me._xtc.cached = {};
+		me._xtc.val = {dirName: localStorage.userHome || '/', baseName:''};
+		
+		me.pathEl = this.querySelector('span');
+		me.fileEl = this.querySelector('input');
+		me.dlistEl = this.querySelector('datalist');
+		
+		var uid = 't'+xtc.uuid();
+		me.dlistEl.setAttribute('id', uid);
+		me.fileEl.setAttribute('list', uid);
+		
+		me.formatPath( me._xtc.val.dirName, 1 );
+		
+		me.addEventListener('focus', function(ev) {
+			if ( ev.target == me ) me.fileEl.focus();
+		});
+		
+		//~ this.setAttribute('tabindex','-1');
+		
+		me.fileEl.addEventListener('keydown', function(ev) {
+			if ( ev.keyCode == 8 && me.fileEl.value.length<1) { //backspace
+				me.rewindPath();
+			}
+		});
+		
+		me.fileEl.addEventListener('keypress', function(ev) {
+			if ( ev.keyCode == 47) return false;
+		});
+		
+		me.fileEl.addEventListener('keyup', function(ev) {
+//~ console.log('keypress', ev.keyCode);
+			if ( ev.keyCode == 191) { // slash '/'  191 keyup/down 47 keypres
+				me.forwardPath();
+			}
+			else if ( !me._xtc.proper ) {
+				me._xtc.proper = 1;
+				me.refreshAutoComplete();
+			}
+		});
+		
+	} },
+	
+	attachedCallback: { value: function() {
+//~ console.log('nearest', this, this.closest('xtc-xsocket', true));
+		this.socketIO = this.closest('xtc-xsocket', true); //todo make configurable with attribute or somethin
+	} },
+	
+	//todo: detach from socket?
+	detachedCallback: { value: function() {
+	} },
+	
+	value: {
+		set: function(v) {
+			var lstat;
+			if ( v instanceof Array ) {
+				lstat = v[1];
+				v = v[0];
+			}
+			this.setVal(v, lstat);
+		},
+		get: function() {
+			var me = this;
+			return me._xtc.val.dirName + (me._xtc.val.dirName!='/' ? '/' : '') + this.querySelector('input').value;
+		},
+	},
+	
+	
+	//~ open: { value: function(file) {
+		
+	//~ } },
+	
+	setVal: { value: function(v, stat) {
+		var me = this;
+		
+		var onStat = function(res) {
+			me._xtc.val = {};
+			if ( fsTools.nodeType( res.d.mode ) == 'folder' ) {
+				me._xtc.val.dirName = v;
+				me._xtc.val.baseName = '';
+			}
+			else {
+				me._xtc.val.dirName = fsTools.dirName(v);
+				me._xtc.val.baseName = fsTools.baseName(v);
+			}
+			var path = me._xtc.val.dirName;
+			
+			me.fileEl.value = me._xtc.val.baseName;
+			me.formatPath( me._xtc.val.dirName );
+		};
+		
+		if (!v || v.length<1 ) {
+			v='/';
+			onStat({d: {mode: 'folder', }});
+		}
+		else {
+			me._xtc.proper = 1;
+			//first lstat the target to figure out if its a folder or what...
+			if ( stat ) onStat({d: stat});
+			else me.socketIO.send('js', [ 'fs.lstatSync', v ], onStat);
+		}
+	} },
+	
+	forwardPath: { value: function() {
+		var me = this;
+		var v = me.fileEl.value || '/';
+//~ console.log('vvvF', v);
+		
+		if ( v[0] != '/' || v.length>1 ) {
+			if ( v[0]!='/' ) v = '/' + v;
+			me._xtc.val.dirName = fsTools.cleanPath( me._xtc.val.dirName + v );
+		}
+		else {
+			me._xtc.val.dirName = '/';
+		}
+		me._xtc.val.baseName = '';
+		me.fileEl.value='';
+		me.formatPath( me._xtc.val.dirName );
+		
+	} },
+	
+	rewindPath: { value: function() {
+		var me = this;
+		var path = me._xtc.val.dirName.split('/');
+//~ console.log('vvvR', path);
+		if ( path.length>1 ) {
+			var last = path.pop();
+			me.fileEl.value = last+'/';
+			me._xtc.val.dirName = fsTools.cleanPath(path.join('/'));
+			me.formatPath( path );
+		}
+	} },
+	
+	formatPath: { value: function(path, noAutoComplete) {
+		var me = this;
+
+		if ( ! ( path instanceof Array ) ) path = path=='/' ? [] : path.split('/');
+		if ( path.length > 3 ) {
+			path = path.splice(-2);
+			path.unshift('...');
+		}
+
+		me.pathEl.innerHTML = path.length ? path.join('/') : '';
+		if (!noAutoComplete) {
+			me.refreshAutoComplete();
+		}
+	} },
+	
+	refreshAutoComplete: { value: function() {
+		var me = this;
+		var opts = {hidden: true};
+		var path = me._xtc.val.dirName;
+console.log('refreshAutoComplete: path="%s" [CACHED=%s]', path, me._xtc.cached.hasOwnProperty( path ));
+		
+		me.dlistEl.innerHTML= '';
+		
+		var fillIt = function(res) {
+console.log('refresh fillIt res:', res, me.dlistEl,'||');
+			if ( !res.d ) return;
+			newInner = '';
+			for(var i=0; i<res.d.length; i++) {
+				newInner += '<option>'+ res.d[i] + '</option>';
+			}
+			me.dlistEl.innerHTML = newInner;
+			me._xtc.cached[ path ] = res;
+			//~ me.fileEl.focus();
+		};
+		
+		if ( me._xtc.cached.hasOwnProperty( path ) ) {
+			fillIt( me._xtc.cached[ path ] );
+		}
+		else {
+			me.socketIO.send('js', ['fs.glob', path, opts], function(res) {
+				fillIt(res);
+			});
+		}
+		
+		//~ me.fireEvent('change');
+	} } ,
+
+}))});
+
+</script>

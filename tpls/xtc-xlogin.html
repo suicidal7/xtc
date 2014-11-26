@@ -1,0 +1,94 @@
+<style>
+xtc-xlogin {
+	position: fixed;
+	z-index: 9998;
+	background-color: rgba(0,0,0,0.5);
+	top: 0; left: 0; right: 0; bottom: 0;
+	display: flex;
+	visibility: hidden;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+	opacity: 0;
+	transition: visiblity 0s linear, opacity 0.5s ease-in;
+}
+
+xtc-xlogin label>input {
+	width: 110px;
+	margin-bottom: 5px;
+}
+
+xtc-xlogin label>span {
+	display: inline-block;
+	width: 50px;
+}
+
+xtc-xlogin h1 {
+	margin-bottom: 10px;
+	border-bottom: 1px dashed #000;
+	width: 100%;
+}
+
+xtc-xlogin input[type=submit] {
+	float: right;
+}
+
+xtc-xlogin .xLogin {
+	padding: 30px;
+	align: auto;
+	background-color: rgba(255,255,255,0.75);
+	border-radius: 5px;
+	-box-shadow: 0 0 12px 1px rgba(0, 0, 0, 0.6);
+	box-shadow: 0 0 12px 1px rgba(164, 241, 136, 0.4);
+	color: #000;
+	-border: 5px solid #A4F188 rgba(164, 241, 136, 0.4);
+}
+
+</style>
+
+<template id="xtc-xlogin">
+			<form action="#">
+			<fieldset class="xLogin"><h1>You Shall Not Pass!</h1>
+				<label><span>Moo:</span><input type="text" name="username"></label><br>
+				<label><span>Foo:</span><input type="password" name="password"></label><br>
+				<input type="submit" value=":@">
+			</fieldset>
+			</form>
+</template>
+
+<script type="text/javascript">
+
+document.registerElement('xtc-xlogin', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var me = this;
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		
+		me._xtc={};
+		var frm = me.querySelector('form');
+		frm.onsubmit = function() {
+
+			var user, pwd, validate_frm = function() {
+				user = frm.querySelector('input[type=text]').value;
+				pwd = frm.querySelector('input[type=password]').value;
+				return user.length && pwd.length;
+			};
+			
+			if ( !validate_frm() ) {
+				me.animateEl.call(me.querySelector('fieldset'), 'noeffect',null,'shake');
+			}
+			else {
+				var skt = me.closest( me.getAttribute('data-xsocket-closest') );
+				if ( skt ) skt.login(user, pwd);
+			}
+			return false;
+		};
+		
+	} },
+	
+	
+	
+}))});
+
+</script>

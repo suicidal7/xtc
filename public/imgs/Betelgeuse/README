@@ -1,0 +1,55 @@
+INTRODUCTION
+============
+
+Betelgeuse is the name for a big star from Orion constellation. The
+intention of this project is to create a complete, modern, clean and
+eye-candy icon theme for the KDE Desktop Environment.
+
+CONTRIBUTE
+==========
+
+There's a lot of work to do. Feel free to contribute to developing it!
+You can do it at some ways:
+
+  1. Creating and editing icons. If you think you've skills at icon
+  designing and you know what Inkscape is (Thanks Karbon, your boolean
+  operations with paths is a pain in the ass) you could help with it. You
+  can clone the git repo at
+  
+  git@gitorious.org:betelgeuse/betelgeuse-sources.git
+
+  and starting designing icons or make the changes you think they need.
+
+  * Please DON'T make/edit and publish any icon as a standalone work. *
+  I will give credits for all people that help with it, the idea is to
+  keep this project unified as much as we can.
+
+  * Please DON'T use any SVG filters, masks, blur and crap like that. *
+  It makes them uncompatible with QtSVG. Please follow as much as you can
+  the style of icons.
+
+  2. Donating money. I'm just a poor graphic design student, seriously.
+  I'm not receiving any cent, neither for this work. I even don't have
+  any bank account so anybody could donate money via paypal. If somebody
+  know how people can make donations so them can come here to Bogota
+  (Colombia) please tell me. And a tablet would be very appreciated.
+  Drawing with a creepy mouse is too hard. Or if you have a better
+  computer and want to donate it... But even any buck would be very
+  appreciated.
+
+  3. If you know about shell scripting, you can help by fixing the
+  build.sh file. I don't know too much about that and it could get
+  better.
+
+  4. Reporting issues, broken links and so on.
+
+  5. Telling me your suggestions, ideas, complainments, insults and so
+  on. Feedback is very appreciated.
+
+LICENSE
+=======
+
+This is licensed under a Creative Commons
+Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0).
+Please visit http://creativecommons.org/licenses/by-nc-sa/3.0/ for
+details.

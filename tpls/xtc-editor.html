@@ -1,0 +1,175 @@
+
+
+<template id="xtc-editor">
+	<xtc-keybinder></xtc-keybinder>
+	<xtc-text-file-location></xtc-text-file-location>
+	<xtc-tabs>
+		
+	</xtc-tabs>
+</template>
+
+<script type="text/javascript">
+
+
+document.registerElement('xtc-editor', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		
+		var me = this;
+		me._xtc={};
+		me._xtc.tabs = me.querySelector('xtc-tabs');
+		this._xtc.beforeSave = {};
+		var textLoc = me.querySelector('xtc-text-file-location');
+		
+		//~ this.setAttribute('tabindex','-1');
+		textLoc.addEventListener('keypress', function(ev) {
+			if ( ev.keyCode==13 ) {
+				me.open( this.value );
+			}
+		});
+		
+		var keys = me.querySelector('xtc-keybinder');
+		keys.bindKey('Alt+O', function(ev) {
+			me.querySelector('xtc-text-file-location').fireEvent('focus');
+		}, null, true);
+		keys.bindKey('Alt+S', function(ev) {
+			me.saveCurrentDoc();
+		}, null, true);
+	
+	
+		me._xtc.tabs.addEventListener('change', function(ev) {
+			var t= ev.target;
+			while(t.parentNode!=me._xtc.tabs) t=t.parentNode;
+			t.setAttribute('dirty', 'dirty');
+		});
+	
+		//~ me.querySelector('xtc-text-file-location')
+		me._xtc.observer = new MutationObserver(function(mutations) {
+//~ console.log('mutations: xtc-editor', mutations);
+			var rec;
+			for(var r=0; r<mutations.length; r++) {
+				rec = mutations[r];
+				if ( rec.type == 'attributes' && rec.target.hasAttribute('selected') ) {
+console.log('setting val', rec.target.getAttribute('data-uid'));
+					textLoc.value = rec.target.getAttribute('data-uid');
+				}
+			}
+		});
+	} },
+	
+	
+	pillInfo: { value: function() {
+		return {title: 'xEdit', };
+	} },
+	
+	energize: { value: function(args) {
+		var me = this;
+		setTimeout(function() {
+			me.open('/tmp/foo.php');
+			me.open('/tmp/foo.js');
+		}, 1000);
+	} },
+	
+	
+	open: { value: function(file) {
+		var me = this;
+		
+		var isOpen = me.querySelector('[data-uid="'+file+'"]');
+		if ( isOpen ) {
+			me.$focus = isOpen;
+			return;
+		}
+		
+		var req = new XMLHttpRequest();
+		req.onreadystatechange = function() {
+//~ console.log('got http response!', req.readyState, req.status);
+			if ( req.readyState!=4 || req.status!=200 ) return;
+			var mode = this.getResponseHeader('content-type')
+			//~ var places = req.responseText.split("\n");
+console.log('http file mode', mode, req.responseText.length);
+
+			var docWrapper = document.createElement('article');
+			docWrapper.setAttribute('tab-index', '-1');
+			docWrapper.setAttribute('data-uid', file);
+			docWrapper.setAttribute('data-title', fsTools.baseName(file));
+			var doc = document.createElement('textarea');
+			doc.setAttribute('data-mode', me.resolveMode(file, mode));
+			docWrapper.appendChild( doc );
+			me.querySelector('xtc-tabs').appendChild(docWrapper);
+
+			me._xtc.observer.observe( docWrapper, {attributes: true, attributeFilter: ['selected'] } );
+
+
+			doc.value = req.responseText || '';
+			
+			me.$focus = docWrapper;
+		};
+		//~ req.setRequestHeaders('accept-encoding','gzip,deflate');
+		req.open('GET', '/file'+file, true);
+		req.send();
+	
+	} },
+	
+	beforeSave: { value: function(article, callback) {
+		this._xtc.beforeSave[article] = callback;
+	} },
+	
+	saveCurrentDoc: { value: function() {
+		var wrapper = this.$focus;
+		
+		if ( this._xtc.beforeSave[wrapper] ) {
+			this._xtc.beforeSave[wrapper]();
+		}
+		
+		var uid = wrapper.getAttribute('data-uid');
+		var fileData = wrapper.querySelector('textarea').value;
+		console.log('Saving doc:', wrapper, fileData);
+    
+			var req = new XMLHttpRequest();
+
+		req.onreadystatechange = function() {
+//~ console.log('got http response!', req.readyState, req.status);
+			if ( req.readyState!=4 ) return;
+			console.log('PUT FILE RESULT: Status=%s, Resp=[%s]', req.status, req.responseText);
+			if ( req.responseText=='OK' ) {
+				wrapper.removeAttribute('dirty');
+			}
+			//todo: call on aftersave
+		}
+
+			req.open("PUT", "/file"+uid);
+			req.overrideMimeType('text/plain');
+
+			req.send(fileData);
+		
+	} },
+	
+	resolveMode: { value: function(file,mime) {
+console.log('resolveMode', file,mime);
+		var ext = fsTools.ext(file);
+		if (ext=='php' ) return 'text/x-php';
+		if (mime) {
+			var i = mime.indexOf(';');
+			if ( i>-1 ) mime = mime.substr(0,i);
+		}
+		return mime;
+	} },
+	
+	
+	$focus: {
+		set: function(wrapper) {
+			wrapper.setAttribute('selected','selected');
+			wrapper.querySelector('textarea').focus();
+		},
+		get: function() {
+			return this._xtc.tabs.querySelector('[selected]');
+		}
+	},
+
+
+}))});
+
+
+</script>

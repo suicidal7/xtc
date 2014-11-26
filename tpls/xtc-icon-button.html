@@ -1,0 +1,32 @@
+	
+<template id="xtc-icon-button">
+	<xtc-icon></xtc-icon>
+</template>
+
+<script type="text/javascript">
+
+document.registerElement('xtc-icon-button', {prototype: Object.create(HTMLElement.prototype, xtc.extend({}, {
+	createdCallback: { value: function() {
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		this._xtc = {};
+	} },
+	
+	attachedCallback: { value: function() {
+		if ( this._xtc.lastParent === this.parentNode ) return;
+		this._xtc.lastParent = this.parentNode;
+
+		this.querySelector('xtc-icon').setAttribute('is', this.getAttribute('is'));
+	} },
+	
+	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
+		if ( attrName=='is' ) {
+			this.querySelector('xtc-icon').setAttribute('is', newVal);
+		}
+	} },
+		
+}))});
+
+
+</script>

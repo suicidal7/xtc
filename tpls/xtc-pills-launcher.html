@@ -1,0 +1,30 @@
+<template id="xtc-pills-launcher">
+	<xtc-icon-button is="places-start-here"></xtc-icon-button>
+	<xtc-popup class="pills-list">
+		<xtc-pills-list></xtc-pills-list>
+	</xtc-popup>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+
+document.registerElement('xtc-pills-launcher', {prototype: Object.create(HTMLElement.prototype, xtc.extend({}, {
+	createdCallback: { value: function() { 
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		
+		var me = this;
+		var popup = this.querySelector('xtc-popup');
+		//~ this.querySelector('xtc-icon-button')
+		this.addEventListener('click', function(ev) {
+			popup.show({my: 'bottom left', at: 'top left', of: me}, true);
+			popup.querySelector('xtc-pills-list').focus();
+			ev.stopPropagation(); //stop popup from closing itself QQ (todo: find better way?)
+			return false;
+		});
+	} },
+}))});
+
+</script>

@@ -1,0 +1,53 @@
+<template id="xtc-workspace">
+	<style>
+	:host {
+		display: block;
+		position: relative;
+		overflow: hidden;
+	}
+	.moveable-highligher {
+		background-color: rgba(0,0,200,0.5);
+		z-index: 10;
+		position: absolute;
+	}
+	
+	:host([data-edge-marker=top]) .moveable-highligher {
+		top: 0; left: 0; right: 0; bottom: 0;
+	}
+	
+	xtc-workspace([data-edge-marker=topleft]) .moveable-highligher {
+		top: 0; left: 0; width: 50%; height: 50%;
+	}
+	
+	xtc-workspace([data-edge-marker=topright]) .moveable-highligher {
+		top: 0; right: 0; width: 50%; height: 50%;
+	}
+	
+	xtc-workspace([data-edge-marker=left]) .moveable-highligher {
+		top: 0; left: 0; width: 50%; bottom: 0;
+	}
+	
+	xtc-workspace([data-edge-marker=right]) .moveable-highligher {
+		top: 0; right: 0; width: 50%; bottom: 0;
+	}
+	
+	xtc-workspace([data-edge-marker=bottomleft]) .moveable-highligher {
+		bottom: 0; left: 0; width: 50%; height: 50%;
+	}
+	
+	xtc-workspace([data-edge-marker=bottomright]) .moveable-highligher {
+		bottom: 0; right: 0; width: 50%; height: 50%;
+	}
+	</style>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-workspace'] = {
+	skinId: 'xtc-workspace',
+	//~ skin: function(el, shadowEl) {
+	
+	//~ },
+};
+</script>

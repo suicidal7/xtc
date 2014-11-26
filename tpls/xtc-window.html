@@ -1,0 +1,222 @@
+
+<template id="xtc-window">
+	<style>
+	</style>
+	<xtc-icon></xtc-icon>
+	<header>Jello Woyd!</header>
+	<map><a href="#minimized">Minimize</a><a href="#maximized">Maximize</a><a href="#closed">Close</a></map>
+	<main> <h3>content here</h3> <p>foobar</p> </main>
+</template>
+
+<script type="text/javascript">
+document.registerElement('xtc-window', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		
+		this._xtc = {};
+		var me = this;
+		this.setAttribute('id', 'win-'+xtc.uuid());
+		var map = this.querySelector('map');
+		map.addEventListener('click', function(ev) {
+			var t = ev.target;
+			while( t.parentNode!==map) t=t.parentNode;
+			var act = t.getAttribute('href').substr(1);
+			
+			if ( me.hasAttribute(act) ) me.removeAttribute(act);
+			else me.setAttribute(act, act);
+			
+			ev.stopPropagation();
+			ev.preventDefault();
+			return false;
+		});
+		
+		me.querySelector('header').addEventListener('click', function() {
+			var t = me.querySelector('main').firstChild;
+			if (t) t.focus();
+		});
+	}	},
+	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
+		console.log('window attr change', attrName, oldVal, newVal);
+		switch(attrName) {
+		case 'minimized': 
+			if ( newVal!==null ) this.minimize();
+			else this.unminimize();
+			break;
+		case 'maximized': 
+			if ( newVal!==null ) this.maximize();
+			else this.unmaximize();
+			break;
+		case 'selected': 
+			if ( newVal ) this.nearest('xtc-workspace').$activeWindow = this;
+			break;
+		case 'closed': 
+			if ( newVal ) this.close();
+			break;
+		case 'snapped': 
+console.log('snapped attr %s=>%s', oldVal, newVal);
+			if ( newVal!==null ) this.snap(newVal);
+			else this.snap({});
+			break;
+		}
+	} },
+	$title: {
+		set: function(t) {
+			this.querySelector('header').innerHTML = t;
+		},
+		get: function(t) {
+			return this.querySelector('header').innerHTML;
+		},
+	},
+	$icon: {
+		set: function(t) {
+console.log('setting window icon:', t, this.querySelector('xtc-icon'));
+			this.querySelector('xtc-icon').setAttribute('is', t);
+		},
+		get: function(t) {
+			return this.querySelector('xtc-icon').getAttribute('is');
+		},
+	},
+	$content: {
+		set: function(c) {
+			this.querySelector('main').innerHTML = '';
+			this.querySelector('main').appendChild(c);
+			setTimeout(function() {
+				c.style.height=c.style.width='auto';
+			}, 800);
+		},
+		get: function(t) {
+			return this.querySelector('main').children;
+		},
+	},
+	$lover: {
+		set: function(newLover) {
+			this._xtc._lover = newLover; //woot ^^
+		},
+		get: function() {
+			return this._xtc._lover;
+		},
+	},
+	
+	unminimize: { value: function(args, endCb) {
+		var me = this;
+		
+			if ( this._xtc.minimizeWindow ) { //unminimize
+			this.removeAttribute('minimized');
+			//~ this.animateClass('minimizing', 'minimized');
+console.log('Restoring window props', this._xtc.minimizeWindow, this);
+			xtc.animateEl(this, this._xtc.minimizeWindow, function() {
+				if ( endCb ) endCb();
+				me.dispatchEvent(new CustomEvent('xtc-window', {detail: 'restored'}) );
+			}, {tClass: 'minimizing'}); 
+
+			delete this._xtc.minimizeWindow;
+			
+			//~ this.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'restored'}) );
+		}
+		
+	} },
+	
+	minimize: { value: function(args, endCb) {
+		var me =  this;
+		
+		
+		var opts = xtc.extend({
+			'towards': this.$lover || ( this.host ? this.host : this.parentNode ), //of workspace - or give DOM element - or lover... teehee
+			'restore': false, //try to restore window state first (maximized/snapped)
+			}, args);
+		/*
+		if ( opts.restore ) {
+			if ( this.hasAttribute('maximized') ) return this.restore();
+			if ( this.hasAttribute('snapped') ) return this.unsnap();
+		}*/
+		
+		var cssXform = {
+			//~ transform: '',
+			opacity: 0,
+			//~ webkitTransition: 'all 0.5s ease-in-out',
+		};
+		
+		
+			this.setAttribute('minimized', 'minimized');
+			var x,y;
+			if ( opts.towards ) {
+				var bounds, rect = this.getBoundingClientRect();
+				if ( opts.towards === 'bottom-center' ) {
+					bounds = this.parentNode.getBoundingClientRect();
+				}
+				else if ( opts.towards instanceof Node ) {
+					bounds = opts.towards.getBoundingClientRect();
+				}
+				x = (bounds.width/2 + bounds.left ) - ( rect.width/2 );
+				y = (bounds.height + bounds.top) - ( rect.height/2  );
+				cssXform.transform = 'translate3d('+x+'px,'+y+'px,0) scale(0,0)';
+			}
+			
+//~ this.style.transform = cssXform.transform;
+			this._xtc.minimizeWindow = xtc.animateEl(this, cssXform, function() {
+				if ( endCb ) endCb();
+				me.dispatchEvent(new CustomEvent('xtc-window', {detail: 'minimized'}) );
+			}, 'minimizing');
+			
+			
+		
+		
+	}},
+	unmaximize: { value: function(forced, endCb) {
+		this.snap( {} );
+	} },
+	maximize: { value: function(forced, endCb) {
+//~ console.log('maximize: forced=%s, hasAttr=%s', forced, this.hasAttribute('maximized'));
+		//~ if ( forced!=1 && this.hasAttribute('maximized') ) this.snap({});
+		this.snap( {top: 1} );
+//~ return;
+		//~ if ( this._xtc.maximizeWindow ) {
+			//~ if ( forced ) return;
+			
+			//~ xtc.animateEl(this, this._xtc.maximizeWindow, function() {
+				//~ if (endCb) endCb();
+				//~ this.dispatchEvent(new CustomEvent('xtc-window', {detail: 'restored'}) );
+			//~ }, 'maximizing');
+			//~ delete this._xtc.maximizeWindow;
+		//~ }
+		//~ else {
+			//~ var bounds = this.parentNode.getBoundingClientRect();
+			//~ this._xtc.maximizeWindow = xtc.animateEl(this, {width: bounds.width+'px', height: bounds.height+'px', transform: 'translate3d(0,0,0) scale(1,1)'}, function() {
+				//~ if (endCb)  endCb();
+				//~ this.dispatchEvent(new CustomEvent('xtc-window', {detail: 'maximized'}) );
+			//~ }, 'maximizing');
+		//~ }
+
+	} },
+	close: { value: function() {
+		this.setAttribute('closed', 'closed');
+		//~ this.querySelector('div').animateClass('closing', function() {
+		console.log('closing window!');
+		this.remove();
+	} },
+	restore: { value: function() {
+		if ( this.hasAttribute('minimized') ) this.removeAttribute('minimized');
+		else if ( this.hasAttribute('maximized') ) this.removeAttribute('maximized');
+		else if ( this.hasAttribute('snapped') ) this.removeAttribute('snapped');
+		//~ else
+		//~ this.setAttribute('selected','selected');
+		this.nearest('xtc-workspace').$activeWindow = this;
+		//~ this.snap({});
+	} },
+	snap: { value: function(dir) {
+		//todo: move these to skin?!
+		var mv = this.querySelector('::shadow xtc-movable');
+		if (mv) mv.snap(dir);
+		//~ return this.querySelector('::shadow xtc-movable').snap(dir);
+	} },
+	isSnapped: { value: function() {
+		console.log('issnapped window!');
+	} },
+}))});
+
+
+
+
+</script>

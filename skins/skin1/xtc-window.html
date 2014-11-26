@@ -1,0 +1,157 @@
+<template id="xtc-window">
+	<style>
+	:host {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		left: 0;
+		top: 0;
+		opacity: 1;
+		outline: 0;
+		
+		min-width: 50px;
+		min-height: 50px;
+		-width: 50%;
+		-height: 50%;
+	}
+	
+	:host(.minimizing),
+	:host(.maximizing) {
+		-webkit-transition: all 0.3s ease-in;
+	}
+
+	
+	xtc-window-wrapper {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		align-self: stretch;
+		position: relative;
+		
+		/*skin overridables*/
+		background-color: rgba(164, 241, 136, 0.4);
+		box-shadow: 0 0 12px 1px rgba(0, 0, 0, 0.6);
+		opacity: 0.98;
+	}
+	
+	xtc-window-title-bar {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		-webkit-user-select: none;
+		
+		background-color: #888888;
+		padding: 0px 8px;
+		font-size: 1.1em;
+		font-weight: bold;
+		min-height: 26px;
+	}
+
+	:host(:last-of-type) xtc-window-title-bar {
+		background-color: #365D98;
+	}
+	
+	xtc-window-title-text {
+		flex: 1 1 auto;
+		align-self: strech;
+		-webkit-user-select: none;
+		cursor: default;
+
+		color: #bbb;
+	}
+	
+	:host(:last-of-type) xtc-window-title-text {
+		color: #fff;
+	}
+	
+	::content>map>a {
+		content: none;
+		color: white;
+		cursor: default;
+	}
+	
+	xtc-window-content {
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: flex;
+	}
+	
+	::content>main {
+		padding: 0px;
+		overflow: visible;
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: flex;
+		resize: none;
+		position: relative;
+	}
+	
+	::content xtc-icon {
+		margin-right: 5px;
+	}
+	
+	</style>
+	<xtc-resizable data-handles="nsew"></xtc-resizable>
+	<xtc-movable data-handle="::shadow xtc-window-title-bar"></xtc-movable>
+	<xtc-window-wrapper>
+		<xtc-window-title-bar>
+			<content select="xtc-icon"></content>
+			<xtc-window-title-text>
+				<content select="header"></content>
+			</xtc-window-title-text>
+			<xtc-window-controls>
+				<content select="map"></content>
+			</xtc-window-controls>
+		</xtc-window-title-bar>
+		<xtc-window-content>
+			<content select="main"></content>
+		</xtc-window-content>
+	</xtc-window-wrapper>
+</template>
+<template id="xtc-window-controls-button">
+	<style>
+	:host {
+		text-decoration: none;
+		outline: 0;
+	}
+	xtc-icon:hover {
+		opacity: 1;
+	}
+	xtc-icon {
+		width: 15px !important;
+		height: 15px !important;
+		line-height: 15px !important;
+		margin-left: 3px !important;
+		opacity: 0.7;
+	}
+	xtc-icon[is=minimized] {
+		background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzYwRDNDRkMzMDM5MTFFMkI5MUFGMzlFMTgwOEI4ODEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzYwRDNDRkQzMDM5MTFFMkI5MUFGMzlFMTgwOEI4ODEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQjE5RDA1NzMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQjE5RDA1ODMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsZJjdUAAAAlSURBVHjaYvz//z8DsYCJgQQwqhgZsCCx8QU4I7piRkImAwQYAJ10BBYiYyqTAAAAAElFTkSuQmCC') no-repeat scroll 1px 1px transparent;
+	}
+	xtc-icon[is=maximized] {
+		background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QkIxOUQwNTUzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QkIxOUQwNTYzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQjE5RDA1MzMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQjE5RDA1NDMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqAiG1YAAAA7SURBVHjaYvz//z8DsYAJSj8E4v948AdkxSSZDALyQMyIBQtgU0ySyQOomAWJ/RCPuo8ggpGUSAEIMACTWxDft/Hl3wAAAABJRU5ErkJggg==') no-repeat scroll 1px 1px transparent;
+	}
+	xtc-icon[is=closed] {
+		background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QkIxOUQwNTEzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QkIxOUQwNTIzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQjE5RDA0RjMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQjE5RDA1MDMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PpFaWsQAAABxSURBVHjajJDRDcAgCERtJ2AER+oIjuZIHcER3IBCvDYX5KMklwg8lPNQ1fI3TjpfJgl9QX2F32yquuI2CWqCXNH/YFejgUpgexmGeUAjmMH+9AA4aKUN5h174qFkYEs8CMNuaMYdkc/sNySAW/0RYABjHiW8yydeWwAAAABJRU5ErkJggg==') no-repeat scroll 1px 1px transparent;
+	}
+	</style>
+	<xtc-icon></xtc-icon>
+</template>
+<script type="text/javascript">
+
+//skin the window controls
+xtc.skins.skin1['xtc-window>map>a'] = {
+	skinId: 'xtc-window-controls-button',
+	skin: function(el, shadowEl) {
+		el.setAttribute('tabindex','-1');
+		shadowEl.querySelector('xtc-icon').setAttribute('is', el.getAttribute('href').substr(1) );
+	},
+};
+//skin the window
+xtc.skins.skin1['xtc-window'] = {
+	skinId: 'xtc-window',
+	skin: function(el, shadowEl) {
+		
+	},
+};
+
+</script>

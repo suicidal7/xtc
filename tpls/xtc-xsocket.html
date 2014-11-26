@@ -1,0 +1,162 @@
+<script type="text/javascript">
+
+//wrapper socket that talks to our socketio backend...
+//todo: use built in sockets & replace uneeded express socketio (server/client sides)
+document.registerElement('xtc-xsocket', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var me = this;
+		me._xtc = {};
+		me._xtc.uid = 1;
+		me._xtc.callbacks={};
+		me._xtc.queue = [];
+		me._xtc.is_open = false;
+		
+		xtc.onBeforeUnload(function() {
+			if (me._xtc.skt) {
+			console.log('xtc-xsocket [%s]: beforeunload', me._xtc.uid);
+				me._xtc.skt.disconnect();
+			}
+		});
+		
+	} },
+	
+	attachedCallback: { value: function() {
+		if ( this._xtc.detachTimer ) {
+			clearTimeout(this._xtc.detachTimer);
+			delete this._xtc.detachTimer;
+		}
+	} },
+	
+	detachedCallback: { value: function() {
+		if ( this._xtc.detachTimer ) return;
+		
+		if ( this._xtc.skt ) {
+			var me  = this;
+			this._xtc.detachTimer = setTimeout(function() {
+				console.log('xtc-xsocket [%s]: detached, disconnecting...', me._xtc.uid);
+				me._xtc.skt.disconnect();
+				delete me._xtc.skt;
+			}, 5000);
+		}
+	} },
+	
+	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
+		console.log('xtc-xsocket[%s]: attr', this._xtc.uid, attrName, oldVal, newVal);
+		if ( attrName=='data-x-host' ) {
+			this.initSkt(newVal);
+		}
+	} },
+	
+	initSkt: { value: function(host) {
+		if ( this._xtc.skt ) {
+			this._xtc.skt.disconnect();
+			delete this._xtc.skt;
+		}
+		if ( typeof(host)!='string' || !host.match(/^(wss|ws):\/\//) ) return;
+console.log('xtc-xsocket[%s]: io.connect host=>',this._xtc.uid, host);
+
+		this._xtc.host = host;
+		this._xtc.skt = io.connect(host, {'force new connection': true});
+		
+		var me = this;
+		
+		var serveCallbacks = function( key, data ) {
+			if ( ! me._xtc.callbacks.hasOwnProperty( key ) ) return;
+			var cbs = me._xtc.callbacks[ key ];
+			for(var i=0; i<cbs.length; i++) {
+				cbs[i].call(me, data);
+			}
+		};
+		
+		me._xtc.skt.on('autherror', function(nfo) {
+			console.log('autherror', nfo);
+			me.parentNode.classList.add( 'data-xsocket-requires-login' );
+		});
+		
+		me._xtc.skt.on('sessionKey', function(nfo) {
+			xtc.setCookie('UKEY', nfo.key);
+			localStorage.userKey = nfo.key;
+			localStorage.user = nfo.user;
+			localStorage.userHome = nfo.home;
+			xtc.__dirname = nfo.dirname;
+			
+			me._xtc.is_open = true;
+			me.parentNode.classList.remove( 'data-xsocket-requires-login' );
+			serveCallbacks('sessionKey', nfo);
+			me.dispatchEvent(new CustomEvent('xtc-xsocket', {detail: 'ready'}) );
+			
+	console.log('dispatching ready event on', me.el);
+			//send Queued
+			while(me._xtc.queue.length) {
+				me.send.apply(me, me._xtc.queue.shift());
+			}
+		});
+		
+		me._xtc.skt.on('disconnect', function() {
+console.log('xtc-xsocket[%s]: disconnect', me._xtc.uid);
+			me._xtc.is_open = false;
+			me._xtc.loginSent = false;
+			me._xtc.reconnected = false;
+		});
+		
+		me._xtc.skt.on('d', function(msg) {
+			if ( msg.uid ) {
+				serveCallbacks(msg.uid, msg);
+			}
+			if ( msg.o ) {
+				serveCallbacks(msg.o, msg.d);
+			}
+		});
+		
+		me._xtc.skt.on('connect', function() {
+			if ( !me._xtc.loginSent && localStorage.userKey ) {
+console.log('xtc-xsocket[%s]: connected', me._xtc.uid);
+				me._xtc.loginSent = true;
+				me._xtc.skt.emit('relog', localStorage.userKey);
+			}
+			else {
+				me.parentNode.classList.add( 'data-xsocket-requires-login' );
+			}
+		});
+		
+		me._xtc.skt.on('reconnect', function() {
+			if ( !me._xtc.loginSent && localStorage.userKey ) {
+console.log('xtc-xsocket[%s]: REconnected', me._xtc.uid);
+				me._xtc.loginSent = true;
+				me._xtc.reconnected = true;
+				me._xtc.skt.emit('relog', localStorage.userKey);
+			}
+		});
+
+	} },
+	
+	on: { value: function(cmd, cb) {
+		if ( !this._xtc.callbacks.hasOwnProperty(cmd) ) this._xtc.callbacks[cmd] = [];
+		this._xtc.callbacks[cmd].push(cb);
+	} },
+
+	login: { value: function(user, pwd) {
+		this._xtc.skt.emit('login', user, pwd);
+	} },
+
+	send: { value: function(cmd, data, cb) {
+//~ console.log('xtc-xsocket >>>',cmd, data);
+		if ( ! this._xtc.is_open ) {
+			this._xtc.queue.push([cmd,data,cb]);
+			return;
+		}
+		var pkt = {uid: this._xtc.uid++, o: cmd, d: data};
+		if ( cb ) {
+			this._xtc.callbacks[ pkt.uid ] = [ cb ];
+		}
+		this._xtc.skt.emit('d', pkt);
+	} },
+	
+	//~ document.location.origin.replace('http://','ws://').replace('https://','wss://')
+}))});
+
+
+
+
+
+</script>

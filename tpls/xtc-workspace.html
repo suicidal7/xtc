@@ -1,0 +1,202 @@
+
+
+
+<script type="text/javascript">
+document.registerElement('xtc-workspace', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function(title, opts) {
+			var me = this, keys = this.parentNode.querySelector( this.getAttribute('keybinder') || 'xtc-keybinder' );
+			me._xtc={};
+			if ( !keys ) return;
+			//~ var tpl = document.getElementById( this.tagName.toLowerCase() );
+			//~ var clone = document.importNode(tpl.content, true);
+			//~ this.appendChild(clone);
+			
+			me._xtc.tabChain = [];
+			
+			keys.bindKey('Alt+Left', function(ev) { var win = me.$activeWindow; if (win!=null) win.snap({left: 1}); });
+			keys.bindKey('Alt+Right', function(ev) { var win = me.$activeWindow; if (win!=null) win.snap({right: 1}); });
+			keys.bindKey('Alt+Up', function(ev) { var win = me.$activeWindow; if (win!=null) win.maximize(true); });
+			keys.bindKey('Alt+Down', function(ev) { 
+				var win = me.$activeWindow; 
+				if (win!=null) {
+					if (win.hasAttribute('snapped')) {
+						win.restore(); 
+					}
+					else {
+						win.minimize();
+					}
+				}
+			});
+			keys.bindKey('Alt+`', function(ev) {
+				//if (me._xtc.tabChainBroken) me._xtc.tabChainBroken = false; 
+				var active = me.$activeWindow;
+				if ( active==null ) {
+					var w = me.querySelector('xtc-window');
+console.log('setting active0', w);
+					me.$activeWindow = w;
+					return;
+				}
+				
+				var previousWindow = function(w) {
+					if (!w) return;
+					var p = w.previousSibling;
+					if ( !p ) return nextWindow(w);
+					while(p && p.tagName!='XTC-WINDOW') p=p.previousSibling;
+					if ( !p ) return nextWindow(w);
+					return p;
+				};
+				var nextWindow = function(w) {
+					if (!w) return;
+					var n = w.nextSibling;
+					while(n && n.tagName!='XTC-WINDOW') n=n.nextSibling;
+					return n;
+				};
+				
+				var next;
+				if ( me._xtc.tabChainNext ) {
+					next = me._xtc.tabChainNext;
+					//~ me._xtc.tabChainNext = me._xtc.tabChainNext.previousSibling ? me._xtc.tabChainNext.previousSibling : me._xtc.tabChainNext.nextSibling;
+					me._xtc.tabChainNext = previousWindow(me._xtc.tabChainNext);
+				}
+				else {
+					//~ me._xtc.tabChainNext = active.previousSibling ? active.previousSibling.previousSibling : false;
+					me._xtc.tabChainNext = previousWindow(active.previousSibling);
+					next = previousWindow(active); //active.previousSibling ? active.previousSibling : active;
+				}
+				me.$activeWindow = next ? next : me.querySelector('xtc-window');
+			},null,null, function() {
+				me._xtc.tabChainNext = false; 
+			});
+			
+			this.addEventListener('xtc-window', function(ev) {
+//~ console.log('xtc-workspace: xtc-window', ev.detail);
+				if ( ev.detail == 'minimized' ) { //set previous in chain as active!
+					if ( ev.target != me.$activeWindow ) return;
+					var t = ev.target.previousSibling;
+					if ( t && t.tagName ) {
+						while(t.tagName!='XTC-WINDOW' || t.minimized()) t=t.previousSibling;
+					}
+					me.$activeWindow = !t || t.tagName!='XTC-WINDOW' ? null : t;
+				}
+				else if ( ev.detail == 'close' ) {
+					
+				}
+			}, true);
+			
+			this.addEventListener('mousedown', function(ev) {
+				var win = ev.target.nearest('xtc-window');
+				if ( win ) me.$activeWindow = win;
+			},true);
+
+			this.addEventListener('xtc-movable.edgeMark', function(ev) {
+				//~ console.log('edgeMark', ev.detail, ev.target);
+				me.setAttribute('data-edge-marker', ev.detail[0]);
+				//if we're snapped and cursor moves too low from top of screen, unsnap window!
+				if ( ev.target.isSnapped() && ev.detail[0].indexOf('top')<0 && ev.detail[2]>60 ) ev.target.unsnap(null,true);
+			}, true);
+			
+			this.addEventListener('xtc-movable.edgeSet', function(ev) {
+				me.setAttribute('data-edge-marker', '');
+				switch(ev.detail) {
+				case 'top': ev.target.maximize(); break;
+				case 'left': ev.target.snap('left'); break;
+				case 'right': ev.target.snap('right'); break;
+				case 'topleft': ev.target.snap('topleft'); break;
+				case 'topright': ev.target.snap('topright'); break;
+				case 'bottomleft': ev.target.snap('bottomleft'); break;
+				case 'bottomright': ev.target.snap('bottomright'); break;
+				}
+			}, true);
+
+
+
+			/*
+			var observer = new MutationObserver(function(mutations) {
+				var rec, val;
+				for(var i=0; i <mutations.length; i++) {
+					rec = mutations[i];
+console.log('processing rec', rec);
+					if ( rec.type=='attributes' && rec.parentNode==me && rec.tagName=='XTC-WINDOW' ) {
+						val = rec.target.getAttribute(rec.attributeName);
+						switch(rec.attributeName) {
+						case 'minimized':
+							if ( val ) me.minimize();
+							else me.restore();
+							break;
+						case 'maximized':
+							if ( val ) me.maximize();
+							else me.restore();
+							break;
+						}
+					}
+				}
+			});
+			observer.observe( me, { substree: true, attributes: true, attributeFilter: ['data-maxi']});//, 'maximized','minimized','snapped'] } );
+			*/
+		},
+	},
+	$activeWindow: {
+		get: function() {
+			return this._xtc.activeWindow;
+		},
+		set: function(winEl) {
+			if ( this._xtc.activeWindow ) {
+//~ console.log('old active vs new active',this._xtc.activeWindow == winEl, this._xtc.activeWindow, winEl );
+				if ( this._xtc.activeWindow == winEl ) return;
+				this._xtc.activeWindow.removeAttribute('selected');
+			}
+			this._xtc.activeWindow = winEl;
+			if ( winEl) {
+				winEl.setAttribute('selected','selected');
+				this.appendChild(winEl); //push it to the end of the childs list so it stays on top of previous windows without playing with z-index
+console.log('setting active', winEl);
+				winEl.restore(function() {
+					winEl.focus();
+					winEl.dispatchEvent(new CustomEvent('xtc-window', {detail: 'focused'}));
+				}, true);
+			}
+		},
+	},
+	createWindow: { value: function(title, opts) {
+			opts = xtc.extend(true, {
+				resizable: 'nsew',
+				icon: '',
+				content: '',
+			}, opts);
+			
+			var lastActive = this.$activeWindow;
+
+			var w = document.createElement('xtc-window');
+			if ( lastActive ) {
+				lastActive = lastActive.getBoundingClientRect();
+				w.style.transform = 'translate3d('+(lastActive.left+20)+'px,'+(lastActive.top+20)+'px,0) scale(1,1)';
+			}
+			if (opts.resizable) w.setAttribute('xtc-resizable', opts.resizable);
+			this.appendChild(w);
+			w.$title = title || 'Title';
+			if ( opts.icon ) w.$icon = opts.icon;
+			if ( opts.content ) w.$content = opts.content;
+			this.$activeWindow = w;
+			
+			//~ w.position({of: lastActive, offset: {x: 20, y: 20}});
+			
+			//try to fix our height/width to fit screen on open if too big...
+			var me = this;
+			setTimeout(function() {
+				var rect = w.getBoundingClientRect();
+				var space = me.getBoundingClientRect();
+				
+				if ( rect.left+rect.width > space.width ) w.style.width = (space.width-rect.left)+'px';
+				else w.style.width = rect.width+'px';
+				if ( rect.top+rect.height > space.height ) w.style.height = (space.height-rect.top)+'px';
+				else w.style.height = rect.height+'px';
+				
+				//~ w.animateEl(null,null,'opening');
+			},500);
+			
+			
+			return w;
+	} },
+}))});
+</script>
+

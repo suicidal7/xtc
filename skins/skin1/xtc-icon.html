@@ -1,0 +1,71 @@
+<template id="xtc-icon">
+	<style>
+	:host {
+		display: inline-block;
+		cursor: default;
+		
+		width: 16px;
+		height: 16px;
+		line-height: 16px;
+		text-align: center;
+		
+		background-image: url('imgs/Betelgeuse/48x48/places/folder-development.png');
+		background-size: 100% 100%;
+	}
+
+	:host(.i24) {
+		width: 24px;
+		height: 24px;
+	}
+	:host(.i32) {
+		width: 32px;
+		height: 32px;
+	}
+	:host(.i48) {
+		width: 48px;
+		height: 48px;
+	}
+	:host(.i64) {
+		width: 64px;
+		height: 64px;
+	}
+
+	:host([is=pill-xtc-image-viewer]) {
+		background-image: url('../imgs/Betelgeuse/48x48/apps/gwenview.png');
+	}
+
+	:host([is=pill-xtc-editor]) {
+		background-image: url('../imgs/Betelgeuse/48x48/apps/kate.png');
+	}
+
+	:host([is=pill-xtc-xterm]) {
+		background-image: url('../imgs/Betelgeuse/48x48/apps/utilities-terminal.png');
+	}
+
+	:host([is=pill-xtc-desktop-intro]) {
+		background-image: url('../imgs/Betelgeuse/48x48/categories/system-help.png');
+	}
+
+
+	:host([is=places-start-here]) {
+		background-image: url('../imgs/Betelgeuse/48x48/places/start-here-chakra.png');
+	}
+
+
+
+	</style>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-icon'] = {
+	skinId: 'xtc-icon',
+	skin: function(el, shadowEl) {
+	
+	},
+	unskin: function(el) {
+	
+	},
+};
+
+</script>

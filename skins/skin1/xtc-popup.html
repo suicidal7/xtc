@@ -1,0 +1,24 @@
+<template id="xtc-popup">
+<style>
+:host {
+	display: none;
+}
+:host(.show) {
+	display: flex;
+	position: fixed;
+	background-color: rgba(164, 241, 136, 0.4);
+	border-radius: 5px;
+}
+</style>
+<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-popup'] = {
+	skinId: 'xtc-popup',
+	skin: function(el, shadowEl) {
+	
+	},
+};
+</script>

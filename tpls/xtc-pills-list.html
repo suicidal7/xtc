@@ -1,0 +1,75 @@
+
+<template id="xtc-pills-list" >
+	<xtc-keybinder></xtc-keybinder>
+</template>
+
+
+<script type="text/javascript">
+
+document.registerElement('xtc-pills-list', {prototype: Object.create(HTMLElement.prototype, xtc.extend({}, {
+	createdCallback: { value: function() {
+		var tpl = document.getElementById( 'xtc-pills-list' );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+		var me = this;
+		me.setAttribute('tabindex', '-1');
+		
+//~ for(var foo=0; foo<30; foo++) {
+		var nfo, pillEl, me = this, select = me.querySelector('select');
+		for(var k in xtc.registeredElements) {
+			if ( ! xtc.registeredElements.hasOwnProperty(k) || !xtc.registeredElements[k].prototype.pillInfo ) continue;
+			nfo = xtc.registeredElements[k].prototype.pillInfo();
+			pillEl = document.createElement('a');
+			pillEl.innerHTML = nfo.title;
+			pillEl.setAttribute('href', '#'+k);
+			me.appendChild(pillEl);
+		}
+//~ }
+		
+		me.addEventListener('focus', function(ev) {
+			
+		});
+		
+		
+		me.addEventListener('click', function(ev) {
+			var t = ev.target;
+			if ( t==me ) return;
+			while(t.parentNode!==me) t=t.parentNode;
+			me.nearest('xtc-desktop').launchPill( t.getAttribute('href').substr(1) );
+			return false;
+		});
+		
+		
+		var keys = me.querySelector('xtc-keybinder')
+		keys.bindKey(['Up','Left'], function() {
+			var a = me.querySelector(':focus');
+			if ( !a ) a = me.querySelector('a');
+			else {
+				if ( !a.previousSibling || a.previousSibling.tagName!='A' ) {
+					if ( me.lastChild!=a ) a=me.lastChild;
+				}
+				else {
+					a = a.previousSibling;
+				}
+			}
+			if (a) a.focus();
+		});
+		keys.bindKey(['Down', 'Right'], function() {
+			var a = me.querySelector(':focus');
+			if ( !a || !a.nextSibling ) a = me.querySelector('a');
+			else {
+				a = a.nextSibling;
+			}
+			if (a) a.focus();
+		});
+		
+		
+	}},
+	
+
+
+}))});
+
+
+</script>
+

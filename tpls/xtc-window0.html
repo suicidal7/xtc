@@ -1,0 +1,389 @@
+<!--
+
+<style>
+	xtc-window0 {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		left: 0;
+		top: 0;
+		opacity: 1;
+		outline: 0;
+		
+		min-width: 50px;
+		min-height: 50px;
+		-width: 50%;
+		-height: 50%;
+	}
+	
+	xtc-window0>div {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		align-self: stretch;
+		position: relative;
+		
+		/*skin overridables*/
+		background-color: rgba(164, 241, 136, 0.4);
+		box-shadow: 0 0 12px 1px rgba(0, 0, 0, 0.6);
+		opacity: 0.98;
+	}
+	
+	xtc-window0:last-of-type {
+		z-index: 1;
+	}
+	
+	xtc-window0-title-bar {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		-webkit-user-select: none;
+		
+		
+		background-color: #888888;
+		padding: 0px 8px;
+		font-size: 1.1em;
+		font-weight: bold;
+		min-height: 36px;
+	}
+	
+	xtc-window0:last-of-type xtc-window0-title-bar {
+		background-color: #365D98;
+	}
+	xtc-window0-title-text {
+		flex: 1 1 auto;
+		align-self: strech;
+
+		color: #bbb;
+	}
+	xtc-window0:last-of-type xtc-window0-title-text {
+
+		color: #fff;
+	}
+	
+
+	xtc-window0.closing {
+		-webkit-animation: hinge 0.6s both;
+		animation: hinge 0.6s both;
+	}
+
+	xtc-window0>div.opening {
+		-webkit-animation: tada 0.6s both;
+		animation: tada 0.6s both;
+		transform-style: preserve-3d;
+		-webkit-animation-iteration-count: 1;
+	}
+
+	xtc-window0.minimizing,
+	xtc-window0.maximizing {
+		-webkit-transition: all 0.3s ease-in;
+	}
+
+	
+	xtc-window0-controls {
+		flex: 0 0 auto;
+	}
+	
+	xtc-window0-controls>xtc-icon-button {
+		width: 15px;
+		height: 15px;
+		line-height: 15px;
+		margin-left: 3px;
+	}
+	xtc-window0-controls /deep/ xtc-icon[is=minimize] {
+		background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzYwRDNDRkMzMDM5MTFFMkI5MUFGMzlFMTgwOEI4ODEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzYwRDNDRkQzMDM5MTFFMkI5MUFGMzlFMTgwOEI4ODEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQjE5RDA1NzMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQjE5RDA1ODMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsZJjdUAAAAlSURBVHjaYvz//z8DsYCJgQQwqhgZsCCx8QU4I7piRkImAwQYAJ10BBYiYyqTAAAAAElFTkSuQmCC') no-repeat scroll 1px 1px transparent;
+	}
+	xtc-window0-controls /deep/ xtc-icon[is=maximize] {
+		background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QkIxOUQwNTUzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QkIxOUQwNTYzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQjE5RDA1MzMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQjE5RDA1NDMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqAiG1YAAAA7SURBVHjaYvz//z8DsYAJSj8E4v948AdkxSSZDALyQMyIBQtgU0ySyQOomAWJ/RCPuo8ggpGUSAEIMACTWxDft/Hl3wAAAABJRU5ErkJggg==') no-repeat scroll 1px 1px transparent;
+	}
+	xtc-window0-controls /deep/ xtc-icon[is=close] {
+		background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QkIxOUQwNTEzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QkIxOUQwNTIzMDM0MTFFMkI5MUFGMzlFMTgwOEI4ODEiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQjE5RDA0RjMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQjE5RDA1MDMwMzQxMUUyQjkxQUYzOUUxODA4Qjg4MSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PpFaWsQAAABxSURBVHjajJDRDcAgCERtJ2AER+oIjuZIHcER3IBCvDYX5KMklwg8lPNQ1fI3TjpfJgl9QX2F32yquuI2CWqCXNH/YFejgUpgexmGeUAjmMH+9AA4aKUN5h174qFkYEs8CMNuaMYdkc/sNySAW/0RYABjHiW8yydeWwAAAABJRU5ErkJggg==') no-repeat scroll 1px 1px transparent;
+	}
+	
+	xtc-window0>div>main {
+		padding: 0px;
+		overflow: auto;
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: flex;
+		resize: none;
+		position: relative;
+	}
+	
+	xtc-window0-title-bar>xtc-icon {
+		width: 24px;
+		height: 24px;
+		margin-right: 5px;
+	}
+
+	</style>
+
+<template id="xtc-window0">
+	<div>
+		<xtc-window0-title-bar>
+			<xtc-icon class="i24"></xtc-icon>
+			<xtc-window0-title-text></xtc-window0-title-text>
+			<xtc-window0-controls>
+				<xtc-icon-button is="minimize"></xtc-icon-button>
+				<xtc-icon-button is="maximize"></xtc-icon-button>
+				<xtc-icon-button is="close"></xtc-icon-button>
+			</xtc-window0-controls>
+		</xtc-window0-title-bar>
+		<main></main>
+	</div>
+</template>
+
+<!--
+	<xtc-resize-handle is="west"></xtc-resize-handle>
+	<xtc-resize-handle is="east"></xtc-resize-handle>
+-- >
+
+<script type="text/javascript">
+
+XTCWindow = document.registerElement('xtc-window0', {prototype: Object.create(XTCNode.prototype, {
+	_createdCallback: { value: function() {
+		var me = this;
+		this.setAttribute('tabindex', '-1');
+		
+		this.addEventListener('xtc-resizable.start', function(ev) {
+			if ( this.isSnapped() ) this.unsnap(true);
+		}, false);
+		
+		
+		this.addEventListener('focus', function(ev) {
+			var main = me.querySelector('main');
+			if ( !main.contains(ev.target) && main.firstChild ) {
+				main.firstChild.focus();
+			}
+		}, true);
+		
+		this.setAttribute('data-movable-handle', 'xtc-window0-title-bar');
+		this.setAttribute('xtc-movable', 'unbound');
+		//~ this.moveable({handle: 'xtc-window0-title-bar', container: this.parentNode, bound: false});
+		
+		var ctrls = this.querySelector('xtc-window0-controls');
+		if ( ctrls ) {
+			ctrls.addEventListener('mouseup', function(ev) {
+				var t = ev.target;
+				while(t && t.parentNode!==ctrls) t=t.parentNode;
+				if ( t ) {
+					var act = t.getAttribute('is');
+					if ( typeof(me[act])=='function' ) me[act]();
+				}
+			}, true);
+		}
+
+	}},
+	$title: {
+		set: function(t) {
+			//~ this._xtc.title = t;
+			this.querySelector('xtc-window0-title-text').innerHTML = t;
+		},
+		get: function() {
+			return this.querySelector('xtc-window0-title-text').innerHTML;
+		},
+	},
+	$content: {
+		set: function(el) {
+			var main = this.querySelector('main');
+			main.innerHTML = '';
+			main.appendChild(el);
+		},
+		get: function() {
+			return this.querySelector('main').children;
+		},
+	},
+	$icon: {
+		set: function(icon) {
+			//~ this._xtc.title = t;
+			this.querySelector('xtc-window0-title-bar>xtc-icon').setAttribute('is',icon);
+		},
+		get: function() {
+			return this.querySelector('xtc-window0-title-bar>xtc-icon').getAttribute('is');
+		},
+	},
+	$lover: {
+		set: function(newLover) {
+			this._xtc._lover = newLover; //woot ^^
+		},
+		get: function() {
+			return this._xtc._lover;
+		},
+	},
+	_attachedCallback: {
+		value: function() {
+			//if we're just being shuffled around in parent, don't do nothing!
+			if ( this._xtc.lastParent === this.parentNode ) return;
+			this._xtc.lastParent = this.parentNode;
+console.log('opning', this.querySelector('div'));
+			var d = this.querySelector('div')
+			this.animateEl.call(d,null,null,'opening');
+		}
+	},
+	hide: { value: function() {
+		this.style.display = 'none';
+	} },
+	show: { value: function() {
+		this.style.display = 'block';
+	} },
+	
+	minimized: { value: function() {
+		return this._xtc.hasOwnProperty('minimizeWindow');
+	} },
+
+	minimize: { value: function(args, endCb) {
+		var me =  this;
+		var opts = xtc.extend(true,{
+			'towards': this.$lover || ( this.host ? this.host : this.parentNode ), //of workspace - or give DOM element - or lover... teehee
+			'restore': false, //try to restore window state first (maximized/snapped)
+			}, args);
+		
+		if ( opts.restore ) {
+			if ( this._xtc.maximizeWindow ) return this.maximize();
+			if ( this._xtc.snapped ) return this.unsnap();
+		}
+		
+		var cssXform = {
+			//~ transform: '',
+			opacity: 0,
+			//~ webkitTransition: 'all 0.5s ease-in-out',
+		};
+		
+		if ( this._xtc.minimizeWindow ) { //unminimize
+			//~ this.animateClass('minimizing', 'minimized');
+console.log('Restoring window props', this._xtc.minimizeWindow, this);
+			this.animateEl(this._xtc.minimizeWindow, function() {
+				if ( endCb ) endCb();
+				me.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'restored'}) );
+			}, {tClass: 'minimizing'}); 
+//~ return;
+			//~ for(var k in this._xtc.minimizeWindow) {
+				//~ if ( !this._xtc.minimizeWindow.hasOwnProperty(k) ) continue;
+//~ console.log('rprop', k, this._xtc.minimizeWindow[k]);
+				//~ this.style[k] = this._xtc.minimizeWindow[k];
+			//~ }
+			delete this._xtc.minimizeWindow;
+			
+			//~ this.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'restored'}) );
+		}
+		else {
+			var x,y;
+			if ( opts.towards ) {
+				var bounds, rect = this.getBoundingClientRect();
+				if ( opts.towards === 'bottom-center' ) {
+					bounds = this.parentNode.getBoundingClientRect();
+				}
+				else if ( opts.towards instanceof Node ) {
+					bounds = opts.towards.getBoundingClientRect();
+				}
+				x = (bounds.width/2 + bounds.left ) - ( rect.width/2 );
+				y = (bounds.height + bounds.top) - ( rect.height/2  );
+				cssXform.transform = 'translate3d('+x+'px,'+y+'px,0) scale(0,0)';
+			}
+			
+//~ this.style.transform = cssXform.transform;
+			this._xtc.minimizeWindow = this.animateEl(cssXform, function() {
+				if ( endCb ) endCb();
+				me.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'minimized'}) );
+			}, 'minimizing');
+			
+			
+		}
+		
+	}},
+
+	maximize: { value: function(forced, endCb) {
+		var win = this;
+
+		if ( this._xtc.maximizeWindow ) {
+			if ( forced ) return;
+			
+			this.animateEl(this._xtc.maximizeWindow, function() {
+				if (endCb) endCb();
+				this.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'restored'}) );
+			}, 'maximizing');
+			delete this._xtc.maximizeWindow;
+		}
+		else {
+			var bounds = this.parentNode.getBoundingClientRect();
+			this._xtc.maximizeWindow = this.animateEl({width: bounds.width+'px', height: bounds.height+'px', transform: 'translate3d(0,0,0) scale(1,1)'}, function() {
+				if (endCb)  endCb();
+				this.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'maximized'}) );
+			}, 'maximizing');
+			
+			//~ {left: this.style.left, top: this.style.top };
+			//~ this.style.left = 0;
+			//~ this.style.top = 0;
+			//~ this.classList.add('maximized');
+			
+		}
+	}},
+
+	restore: { value: function(endCb, toFocus) {
+		if ( this._xtc.minimizeWindow ) this.minimize({}, endCb);
+		else if ( !toFocus && this._xtc.maximizeWindow ) this.maximize(0, endCb);
+		else if (endCb) endCb();
+	}},
+
+	close: { value: function() {
+		this.dispatchEvent(new CustomEvent('xtc-window0', {detail: 'close'}) );
+		
+		var me = this;
+		this.querySelector('div').animateClass('closing', function() {
+			me.remove();
+		});
+	}},
+
+	unsnap: { value: function(keepSnapPos, noAni) {
+		//~ if (!keepSnapPos && !noAni) this.animateClass('maximizing');
+		
+		if ( !keepSnapPos ) {
+			this.animateEl(this._xtc.savedSnapPos, null, noAni ? 'noeffect' : 'maximizing');
+		}
+
+		delete this._xtc.snapped;
+		delete this._xtc.savedSnapPos;
+	}},
+
+	snap: { value: function(dir) {
+		var bounds = this.parentNode.getBoundingClientRect();
+		
+		if ( dir.length>5 ) {
+			var apply = apply = {transform: 'translate3d(0,0,0) scale(1,1)', width: bounds.width/2 +'px', height: bounds.height/2+'px' };;
+			switch(dir) {
+			case 'topleft': break;
+			case 'topright': apply.transform = 'translate3d('+bounds.width/2+'px,0,0) scale(1,1)'; break;
+			case 'bottomleft': apply.transform = 'translate3d(0,'+bounds.height/2+'px,0) scale(1,1)'; break;
+			case 'bottomright': apply.transform = 'translate3d('+bounds.width/2+'px,'+bounds.height/2+'px,0) scale(1,1)'; break;
+			}
+			this.animateEl(apply,function(){},'maximizing');
+			delete this._xtc.snapped;
+			delete this._xtc.savedSnapPos;
+			return;
+		}
+		
+		if ( this._xtc.snapped && this._xtc.snapped == dir ) {
+			//snap around to the other side ^^
+			this.snap( dir=='left'?'right':'left');
+		}
+		else {
+			if ( this._xtc.maximizeWindow ) this.maximize();
+
+			this._xtc.snapped = dir;
+
+			var apply = {transform: 'translate3d('+(dir=='left'? '0' : (bounds.width/2)+'px')+',0,0) scale(1,1)', width: bounds.width/2 +'px', height: bounds.height+'px' };
+			apply = this.animateEl(apply,function(){},'maximizing');
+			if (!this._xtc.savedSnapPos) this._xtc.savedSnapPos = apply;
+		}
+	}},
+
+	isSnapped: { value: function() {
+		return this._xtc.snapped;
+	}},
+	
+})});
+
+</script>
+
+
+-->

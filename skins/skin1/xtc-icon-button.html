@@ -1,0 +1,31 @@
+<template id="xtc-icon-button">
+	<style>
+	:host {
+		opacity: 0.7;
+	}
+	
+	:host(:hover) {
+		opacity: 1;
+	}
+
+	::content xtc-icon {
+		-cursor: pointer !important;
+	}
+
+	</style>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-icon-button'] = {
+	skinId: 'xtc-icon-button',
+	skin: function(el, shadowEl) {
+	
+	},
+	unskin: function(el) {
+	
+	},
+};
+
+</script>

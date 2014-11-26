@@ -1,0 +1,71 @@
+<template id="xtc-tabs">
+	<style>
+	:host {
+		display: flex;
+		flex-flow: column nowrap;
+		justify-content: flex-start;
+		align-items: stretch;
+		align-content: flex-start;
+		flex: 1 1 auto;
+		align-self: stretch;
+		
+		-background-color: teal;
+	}
+	:host::shadow map {
+		flex: 0 1 auto;
+		display: flex;
+		height: 25px;
+		min-height: 25px;
+		max-height: 25px;
+	}
+	
+	:host::shadow map>a {
+		
+		text-decoration: none;
+		color: inherit;
+		padding: 5px;
+		line-height: 20px;
+		vertical-align: center;
+		border-top-left-radius: 20px;
+		border-top-right-radius: 5px;
+
+		flex: 0 1 auto;
+		align-self: flex-end;
+		padding-top: 0 !important;
+		padding-bottom: 0 !important;
+	}
+	
+	:host::shadow main {
+		flex: 1 1 auto;
+		align-self: stretch;
+		-border: 1px solid red;
+		display: flex;
+	}
+	:host::shadow main>::content>article {
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: none;
+	}
+	
+	:host::shadow main>::content>article[selected] {
+		display: flex;
+		flex-flow: column nowrap;
+	}
+
+	</style>
+	<shadow></shadow>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-tabs'] = {
+	skinId: 'xtc-tabs',
+	skin: function(el, shadowEl) {
+console.log('shadowEl', el, shadowEl.querySelector('::content main'));
+		//track all ::content>article & their following attrs:
+		//data-title
+		//data-uid
+		// ==> update map accordingly and setup clicks and whatnot to deal with tabbing
+	},
+};
+</script>

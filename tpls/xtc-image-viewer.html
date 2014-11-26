@@ -1,0 +1,86 @@
+<style>
+xtc-image-viewer {
+	display: flex;
+	flex: 1 1 auto;
+	align-self: stretch;
+	overflow: hidden;
+}
+xtc-image-viewer>main {
+	flex: 1 1 auto;
+	align-self: stretch;
+	background-color: rgba(0,0,0,0.3);
+	overflow: auto;
+}
+xtc-image-viewer.fit>main {
+	display: flex;
+}
+xtc-image-viewer>a {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	background-color: rgba(255,0,0,0.2);
+	padding: 10px;
+}
+</style>
+
+<template id="xtc-image-viewer">
+	<main>
+		<img/>
+	</main>
+	<a href="#fit">fit</a>
+	<xtc-keybinder></xtc-keybinder>
+</template>
+
+
+<script type="text/javascript">
+
+document.registerElement('xtc-image-viewer', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	//~ attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
+		//~ XTCNode.prototype.attributeChangedCallback.appl(this, arguments);
+		
+
+	//~ } },
+	createdCallback: { value: function() {
+		var me = this;
+		me._xtc={};
+		//~ this.setAttribute('tabindex', '-1');
+		var stretchBtn = this.querySelector('a');
+		me.classList.add('fit');
+		
+		stretchBtn.addEventListener('click', function() {
+//~ console.log('strclick', me.classList.contains('fit'), me);
+			if ( !me.classList.contains('fit') ) {
+				me.classList.add('fit');
+			}
+			else {
+				me.classList.remove('fit');
+			}
+			return false;
+		});
+		
+		keys = this.querySelector('xtc-keybinder');
+		keys.bindKey('Alt+S', function() {
+console.log('image viewer ALT+S', stretchBtn);
+			stretchBtn.click();
+			return false;
+		});
+	} },
+	
+	pillInfo: { value: function() {
+		return {title: 'Image Viewer'};
+	} },
+	
+	energize: { value: function(args) {
+		var url = args;
+		//~ this.querySelector('div').style.backgroundImage = "url('"+url+"')";
+		//~ this.innerHTML='';
+		//~ var img = document.createElement('img');
+		//~ img.src = url;
+		//~ this.appendChild(img);
+		this.querySelector('img').setAttribute('src', url);
+	} },
+	
+	
+}))});
+
+</script>

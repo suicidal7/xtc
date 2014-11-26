@@ -1,0 +1,48 @@
+
+<template id="xtc-text-file-location">
+	<style>
+	:host {
+		white-space-collapse: discard;
+		display: flex;
+		flex-flow: row nowrap;
+		align-content: flex-start;
+		align-items: flex-start;
+		justify-content: flex-start;
+	}
+	::content>span::after {
+		content: '/';
+		font-weight: bold;
+		color: blue;
+	}
+	::content>span {
+		border: 1px solid grey;
+		border-right: 0;
+		background-color: #fff;
+		color: #555;
+		padding: 2px 1px 2px 3px;
+		flex: 0 1 auto;
+	}
+	::content>input {
+		border: 1px solid grey;
+		border-left: 0;
+		outline:0;
+		padding: 2px 3px 2px 1px;
+		flex: 1 1 auto;
+	}
+	::content>* {
+		float: left;
+		line-height: 18px;
+	}
+	</style>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-text-file-location'] = {
+	skinId: 'xtc-text-file-location',
+	skin: function(el, shadowEl) {
+		//~ el.querySelector('textarea').removeAttribute('resizable');
+	},
+};
+</script>

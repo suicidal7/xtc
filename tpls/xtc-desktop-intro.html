@@ -1,0 +1,56 @@
+<template id="xtc-desktop-intro">
+	<h1>Hello World</h1>
+	<main>
+	<p>
+		<h3>General Keys</h3>
+		<ul>
+			<li><em>Alt</em> Pills Menu</li>
+			<li><em>Alt+`</em> Cycle Pills</li>
+		</ul>
+	</p>
+	<p>
+		<h3>Window Keys</h3>
+		<ul>
+			<li><em>Alt-Left:</em> Snap Left</li>
+			<li><em>Alt-Right:</em> Snap Right</li>
+			<li><em>Alt-Up:</em> Maximize</li>
+			<li><em>Alt-Down:</em> Minimize</li>
+			<li><em>Alt-Click:</em> Move window from anywhere</li>
+		</ul>
+	</p>
+	<p>
+		<h3>Desktop</h3>
+		<ul>
+			<li>Move windows around edges/corners!</li>
+		</ul>
+	</p>
+	</div>
+	</main>
+	<footer>
+		<h3>Launch an app!</h3>
+		<xtc-pills-list> </xtc-pills-list>
+	</footer>
+	</div>
+</template>
+
+
+<script type="text/javascript">
+
+document.registerElement('xtc-desktop-intro', {prototype: Object.create(HTMLElement.prototype, xtc.extend({}, {
+	createdCallback: { value: function() { 
+		var tpl = document.getElementById( this.tagName.toLowerCase() );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+	} },
+	
+	pillInfo: { value: function() {
+		return {title: 'Desktop Intro'};
+	} },
+	
+	energize: { value: function(args) {
+		
+	} },
+
+}))});
+
+</script>

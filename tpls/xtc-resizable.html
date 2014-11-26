@@ -1,0 +1,196 @@
+	<style>
+	body /deep/ xtc-resize-handle {
+		position: absolute;
+		opacity: 0;
+		display: none;
+		z-index: 1;
+	}
+	
+	body /deep/ xtc-resize-handle[is=north] { top: 0; height: 5px; left: 5px; right: 5px; cursor: n-resize; }
+	body /deep/ xtc-resize-handle[is=south] { bottom: 0; height: 5px; left: 5px; right: 5px; cursor: s-resize; }
+	body /deep/ xtc-resize-handle[is=west] { left: 0; width: 5px; top: 5px; bottom: 5px; cursor: e-resize; }
+	body /deep/ xtc-resize-handle[is=east] { right: 0; width: 5px; top: 5px; bottom: 5px; cursor: w-resize; }
+	body /deep/ xtc-resize-handle[is=northwest] { left: 0; top: 0; width: 5px; height: 5px; cursor: nw-resize; }
+	body /deep/ xtc-resize-handle[is=northeast] { right: 0; top: 0; width: 5px; height: 5px; cursor: ne-resize; }
+	body /deep/ xtc-resize-handle[is=southwest] { left: 0; bottom: 0; width: 5px; height: 5px; cursor: sw-resize; }
+	body /deep/ xtc-resize-handle[is=southeast] { right: 0; bottom: 0; width: 5px; height: 5px; cursor: se-resize; }
+
+	</style>
+<!--
+<template id="xtc-resize-handle">
+</template>
+-->
+
+
+<template id="xtc-resizable">
+	<style>
+	xtc-resizable {
+		display: inline-block;
+		width: 0;
+		height: 0;
+		overflow: visible;
+		position: static;
+	}
+	xtc-resizable[data-handles*=n] xtc-resize-handle[is=north] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=s] xtc-resize-handle[is=south] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=e] xtc-resize-handle[is=east] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=w] xtc-resize-handle[is=west] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=n][data-handles*=e] xtc-resize-handle[is=northeast] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=n][data-handles*=w] xtc-resize-handle[is=northwest] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=s][data-handles*=e] xtc-resize-handle[is=southeast] {
+		display: block;
+	}
+	xtc-resizable[data-handles*=s][data-handles*=w] xtc-resize-handle[is=southwest] {
+		display: block;
+	}
+	
+	</style>
+	<xtc-resize-handle is="north"></xtc-resize-handle>
+	<xtc-resize-handle is="northeast"></xtc-resize-handle>
+	<xtc-resize-handle is="northwest"></xtc-resize-handle>
+	<xtc-resize-handle is="south"></xtc-resize-handle>
+	<xtc-resize-handle is="southeast"></xtc-resize-handle>
+	<xtc-resize-handle is="southwest"></xtc-resize-handle>
+	<xtc-resize-handle is="east"></xtc-resize-handle>
+	<xtc-resize-handle is="west"></xtc-resize-handle>
+</template>
+
+
+<script type="text/javascript">
+document.registerElement('xtc-resizable', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() { 
+		var tpl = document.getElementById( 'xtc-resizable' );
+		var clone = document.importNode(tpl.content, true);
+		this.appendChild(clone);
+	} },
+}))});
+
+document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() { 
+		var me = this;
+		me._xtc={};
+//~ console.log('MOOO', this);
+		this.addEventListener('mousedown', function(ev) {
+			me.onMouseDown(ev);
+		});
+	}},
+	getResizeTarget: { value: function(ev) {
+		var node = ( this.parentNode.tagName == 'XTC-RESIZABLE' ? this.parentNode : this );
+		return node.parentNode.host ? node.parentNode.host : node.parentNode;
+	}},
+	onMouseDown: { value: function(ev) {
+		var map = {north: 'n', east: 'e', south: 's', west: 'w', northeast: 'ne', northwest: 'nw', southeast: 'se', southwest: 'sw'};
+		map = map[this.getAttribute('is')];
+		this._xtc.resizing = {};
+		for (var k=0; k<map.length; k++) this._xtc.resizing[map[k]]=1;
+//~ console.log('resizing', this._xtc.resizing);
+
+				if ( this._xtc.resizing ) {
+					this._xtc.resizeEl = this.getResizeTarget();
+//~ console.log('resizing el', this._xtc.resizeEl);
+					var style = window.getComputedStyle(this._xtc.resizeEl);
+					var rect = this._xtc.resizeEl.getBoundingClientRect();
+					this._xtc.start = { 
+						x: ev.screenX, 
+						y: ev.screenY, 
+						width: parseInt(style.width), height: parseInt(style.height),
+						offsetX: ev.pageX - rect.left,
+						offsetY: ev.pageY - rect.top,
+						rect: rect,
+						style: style
+					};
+					this._xtc.maxWidth = parseInt(style.maxWidth) || 0;
+					this._xtc.maxHeight = parseInt(style.maxHeight) || 0;
+					this._xtc.minWidth = parseInt(style.minWidth) || 0;
+					this._xtc.minHeight = parseInt(style.minHeight) || 0;
+					this._xtc.xform = style.position=='absolute';
+					
+					var me = this;
+					var onMouseUp = function(ev) {
+						me._xtc.resizing = false;
+						window.removeEventListener('mouseup', onMouseUp);
+						window.removeEventListener('mousemove', onMouseMove);
+						for(var i=0; i<me._xtc.iframes.length; i++) {
+							me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', onMouseUp);
+							me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', onMouseDown);
+						}
+					};
+					var onMouseMove = function(ev) {
+						me.onMouseMove.call(me,ev);
+					};
+					
+					this._xtc.iframes = document.getElementsByTagName('iframe');
+					for(var i=0; i<this._xtc.iframes.length; i++) {
+						this._xtc.iframes[i].contentWindow.addEventListener('mouseup', onMouseUp);
+						this._xtc.iframes[i].contentWindow.addEventListener('mousemove', onMouseMove);
+					}
+					window.addEventListener('mouseup', onMouseUp);
+					window.addEventListener('mousemove', onMouseMove);
+					this._xtc.resizeEl.dispatchEvent(new CustomEvent('xtc-resizable.start'));
+				}
+				
+				ev.preventDefault();
+				ev.stopPropagation();
+				return false;
+
+	} },
+	onMouseMove: { value: function(ev) {
+//~ console.log('rezizing', this._xtc.resizing);
+		if ( !this._xtc.resizing ) return;
+		
+		var apply = {},
+			w = ev.screenX - this._xtc.start.x,
+			h = ev.screenY - this._xtc.start.y;
+
+		if ( this._xtc.resizing.e ) {
+			apply.width = this._xtc.start.width+w;
+		}
+		else if ( this._xtc.resizing.w ) {
+			w = w * -1;
+			var x = ev.pageX - this._xtc.start.offsetX
+				, y = this._xtc.start.rect.top
+			;
+			apply.transform = 'translate('+x+'px,'+y+'px)';
+			apply.width = this._xtc.start.width+w;
+		}
+		if ( this._xtc.resizing.n ) {
+			h = h * -1;
+			var x = this._xtc.resizing.w ? ev.pageX - this._xtc.start.offsetX : this._xtc.start.rect.left 
+				, y = ev.pageY - this._xtc.start.offsetY
+			;
+			apply.transform = 'translate('+x+'px,'+y+'px)';
+			apply.height = this._xtc.start.height+h;
+		}
+		else if ( this._xtc.resizing.s ) {
+			apply.height = this._xtc.start.height+h;
+		}
+		
+		//apply min/max styles if set
+		if ( apply.width && ((this._xtc.maxWidth && apply.width>this._xtc.maxWidth) || (this._xtc.minWidth && apply.width<this._xtc.minWidth)) )
+			delete apply.width;
+
+		if ( apply.height && ((this._xtc.maxHeight && apply.height>this._xtc.maxHeight) || (this._xtc.minHeight && apply.height<this._xtc.minHeight)) )
+			delete apply.height;
+		
+		if ( !apply.height && !apply.width && apply.transform ) delete apply.transform;
+		
+		if (apply.width) this._xtc.resizeEl.style.width = apply.width +'px';
+		if (apply.height) this._xtc.resizeEl.style.height = apply.height +'px';
+//~ console.log('xform', this._xtc.xform, apply.transform);
+		if (this._xtc.xform && apply.transform) this._xtc.resizeEl.style.transform = apply.transform;
+			
+	} },
+}))});
+</script>

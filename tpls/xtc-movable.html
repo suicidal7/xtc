@@ -1,0 +1,326 @@
+<style>
+xtc-movable-overlay {
+	background-color: rgba(0,0,0,0.5);
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+}
+</style>
+
+<script type="text/javascript">
+document.registerElement('xtc-movable-overlay', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+}))});
+
+document.registerElement('xtc-movable', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		this._xtc = {};
+		this._xtc.overlayEl = document.querySelector('xtc-movable-overlay');
+		if ( ! this._xtc.overlayEl  ) {
+			this._xtc.overlayEl = document.createElement('xtc-movable-overlay');
+			document.body.appendChild(this._xtc.overlayEl);
+		}
+	} },
+	attachedCallback: { value: function() {
+		var me = this;
+		
+		me._xtc.movingObj = me.parentNode.host ? me.parentNode.host : me.parentNode;
+		this._xtc.movableHandle = me._xtc.movingObj.querySelector( this.getAttribute('data-handle') || '[is=xtc-movable-handle]' ) || this;
+		
+console.log('xtc-movable', this, me._xtc.movingObj,this._xtc.overlayEl);
+console.log('setting movable', this._xtc.movableHandle);
+		
+		this._xtc.mousedown = function(ev) {
+			if ( ev.target.tagName=='A' ) return;
+			return me.mousedown.call(me,ev);
+		};
+
+		this._xtc.movableHandle.addEventListener('mousedown', this._xtc.mousedown);
+		if ( this._xtc.movableHandle !== this.parentNode ) { //we got a handle, enable alt+click to move from anywhere
+			this.parentNode.addEventListener('mousedown', function(ev) {
+				if ( ev.altKey ) return me.mousedown.call(me,ev);
+			});
+		}
+
+		this._xtc.bound = this.getAttribute('data-bound') || 'unbound'; //val can be bound/unbound
+	} },
+	
+	detachedCallback: { value: function() {
+		//todo:
+	} },
+	
+	mousedown: { value: function(ev) {
+		var me = this;
+		var el = this.parentNode.host ? this.parentNode.host : this.parentNode;
+//~ console.log('mouse down', me, el);
+		window.__MOVING_ELEMENT__ = me;
+		me._xtc.dragInfo = {};
+		me._xtc.movableContainer = el.parentNode;
+		
+		me._xtc.movingObj.style.zIndex++;
+	
+		var dStyle = window.getComputedStyle(el,null);
+	
+		if ( !me._xtc.preSnap ) {
+			me._xtc.preSnap = {
+				transform: dStyle.transform=='none' ? 'translate3d(0,0,0) scale(1,1)' : dStyle.transform ,
+				width: dStyle.width,
+				height: dStyle.height,
+			};
+console.log('saved presnap pos', me._xtc.preSnap);
+		}
+	
+		var rect = el.getBoundingClientRect();
+
+		me._xtc.dragInfo.offsetX = ev.pageX - rect.left;
+		me._xtc.dragInfo.offsetY = ev.pageY - rect.top;
+		me._xtc.dragInfo.offsetXpc =  me._xtc.dragInfo.offsetX / rect.width;
+		me._xtc.dragInfo.offsetYpc =  me._xtc.dragInfo.offsetY / rect.height;
+	console.log('offsets', me._xtc.dragInfo.offsetX, me._xtc.dragInfo.offsetY, rect.left, rect.top);
+
+		me._xtc.iframes = document.querySelectorAll('body /deep/ iframe');
+		for(var i=0; i<me._xtc.iframes.length; i++) {
+			me._xtc.iframes[i].contentWindow.addEventListener('mouseup', me.mouseup);
+			me._xtc.iframes[i].contentWindow.addEventListener('mousemove', me.mousemove);
+		}
+		window.addEventListener('mouseup', me.mouseup);
+		window.addEventListener('mousemove', me.mousemove);
+
+		if ( me._xtc.movableContainer && me._xtc.bound =='bound' ) {
+			var cStyle = window.getComputedStyle(me._xtc.movableContainer, null);
+			me._xtc.dragInfo.bounds = {
+				screenX: ev.screenX,
+				screenY: ev.screenY,
+				x: parseInt(dStyle.left),
+				y: parseInt(dStyle.top),
+				left: parseInt(cStyle.paddingLeft) + parseInt(cStyle.marginLeft),
+				right: parseInt(cStyle.width) + parseInt(cStyle.marginLeft) - parseInt(dStyle.width) - parseInt(dStyle.marginLeft) - parseInt(dStyle.marginRight),
+				top: parseInt(cStyle.paddingTop) + parseInt(cStyle.marginTop),
+				bottom: parseInt(cStyle.height) + + parseInt(cStyle.marginTop) - parseInt(dStyle.height) - parseInt(dStyle.marginTop) - parseInt(dStyle.marginBottom),
+			};
+	//~ console.log('MOVE', dragInfo.bounds);
+		}
+
+		
+
+	} },
+	
+
+	mouseup: { value: function(ev) {
+		var me = window.__MOVING_ELEMENT__;
+		delete window.__MOVING_ELEMENT__;
+		window.removeEventListener('mouseup', me.mouseup);
+		window.removeEventListener('mousemove', me.mousemove);
+		me._xtc.overlayEl.style.display = 'none';
+		
+		var el = me._xtc.movingObj;
+		el.style.zIndex--;
+
+		if ( Math.abs(ev.screenX-me._xtc.dragInfo.screenX)<5 && Math.abs(ev.screenY-me._xtc.dragInfo.screenY)<5) return;
+
+
+		//reactivate iframes
+		for(var i=0; i<me._xtc.iframes.length; i++) {
+			me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', me.mouseup);
+			me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', me.mousemove);
+		}
+		
+		var snapped = me._xtc.dragInfo.edgeMarker ? Object.keys(me._xtc.dragInfo.edgeMarker).length : 0;
+		if ( me._xtc.movableContainer && snapped ) {
+			//~ el.dispatchEvent(new CustomEvent('xtc-movable.edgeSet', {detail: me._xtc.dragInfo.edgeMarker}) );
+			me.snap( me._xtc.dragInfo.edgeMarker );
+		}
+		else {
+			//save new position
+			var dStyle = window.getComputedStyle(el,null);
+			me._xtc.preSnap = {
+				transform: dStyle.transform=='none' ? 'translate3d(0,0,0) scale(1,1)' : dStyle.transform ,
+				width: dStyle.width,
+				height: dStyle.height,
+			};
+		}
+		
+	} },
+
+	mousemove: { value: function(ev) {
+		var me = window.__MOVING_ELEMENT__;
+		var el = me._xtc.movingObj;
+
+		var x = ev.pageX - me._xtc.dragInfo.offsetX  //(ev.screenY + me._xtc.dragInfo.y - me._xtc.dragInfo.height)
+			, y = ev.pageY - me._xtc.dragInfo.offsetY //(ev.screenX + me._xtc.dragInfo.x - me._xtc.dragInfo.width)
+		;
+		
+		
+		if ( Math.abs(ev.screenX-me._xtc.dragInfo.screenX)<5 && Math.abs(ev.screenY-me._xtc.dragInfo.screenY)<5) return;
+		
+		if ( me._xtc.snapped ) {
+			me.unsnap();
+			
+			me._xtc.dragInfo.offsetX = parseInt(me._xtc.preSnap.width) * me._xtc.dragInfo.offsetXpc;
+			me._xtc.dragInfo.offsetY = parseInt(me._xtc.preSnap.height) * me._xtc.dragInfo.offsetYpc;
+			
+			x = ev.pageX - me._xtc.dragInfo.offsetX;
+			y = ev.pageY - me._xtc.dragInfo.offsetY;
+			
+			//~ dStyle = window.getComputedStyle(el,null);
+		}	
+		
+		if ( me._xtc.movableContainer ) {
+			if ( me._xtc.bound =='bound' ) {
+				if ( x < me._xtc.dragInfo.bounds.left ) x = me._xtc.dragInfo.bounds.left;
+				else if ( x > me._xtc.dragInfo.bounds.right ) x = me._xtc.dragInfo.bounds.right;
+				if ( y < me._xtc.dragInfo.bounds.top ) y = me._xtc.dragInfo.bounds.top;
+				else if ( y > me._xtc.dragInfo.bounds.bottom ) y = me._xtc.dragInfo.bounds.bottom;
+			}
+			else {
+				var rect = me._xtc.movableContainer.getBoundingClientRect();
+	//~ console.log(rect, ev.pageX, ev.screenX);
+				
+				me._xtc.dragInfo.edgeMarker = {};
+				
+				var olay = {};
+				olay.left = rect.left;
+				olay.top= rect.top;
+				olay.height= rect.height;
+				olay.width= rect.width;
+				
+				if ( ev.pageY<20) {
+					me._xtc.dragInfo.edgeMarker.top=1;
+					x = el.style.left;
+				}
+				else if ( ev.pageY<30) {
+					me._xtc.dragInfo.edgeMarker.top=2;
+					olay.height= rect.height/2;
+				}
+				else if ( ev.pageY >  rect.height-20 ) {
+					me._xtc.dragInfo.edgeMarker.bottom=1;
+					y = el.style.top;
+					
+					olay.height= rect.height/2;
+					olay.top= rect.top+olay.height;
+				}
+				
+				if ( ev.pageX >  rect.width-20 ) {
+					me._xtc.dragInfo.edgeMarker.right=1;
+					x = el.style.left;
+					
+					olay.width= (rect.width/2);
+					olay.left = rect.left + olay.width;
+				}
+				else if ( ev.pageX<20) {
+					me._xtc.dragInfo.edgeMarker.left=1;
+					x = el.style.left;
+					
+					olay.width= rect.width/2;
+				}
+				
+				if ( me._xtc.dragInfo.edgeMarker.top && (me._xtc.dragInfo.edgeMarker.right || me._xtc.dragInfo.edgeMarker.left) ) {
+					olay.height = rect.height/2;
+				}
+				
+				//~ me._xtc.dragInfo.edgeMarker = me._xtc.dragInfo.edgeMarker.join('');
+				var olayKeys = Object.keys(olay);
+//~ console.log('olay', olay);
+				if (Object.keys(me._xtc.dragInfo.edgeMarker).length) {
+					for(var i=0;i<olayKeys.length;i++) {
+						me._xtc.overlayEl.style[ olayKeys[i] ] = olay[ olayKeys[i] ]+'px';
+					}
+					me._xtc.overlayEl.style.display = 'block';
+				}
+				else {
+					me._xtc.overlayEl.style.display = 'none';
+				}
+				
+				me._xtc.overlayPos = olay;
+				
+				//~ el.dispatchEvent(new CustomEvent('xtc-movable.edgeMark', {detail: [me._xtc.dragInfo.edgeMarker, ev.pageX, ev.pageY]}) );
+			}
+		}
+		
+		el.style.transform = 'translate3d('+x+'px, '+y+'px,0) scale(1,1)';
+
+		ev.stopPropagation();
+		ev.preventDefault();
+		return false;
+	} },
+	
+	unsnap: { value: function(ev) {
+		var me = this;
+console.log('unsnapping?!', me._xtc.snapped, me._xtc.preSnap);
+		if ( me._xtc.snapped ) {
+			delete me._xtc.snapped;
+			var el = me._xtc.movingObj;
+			el.style.transform = ev ? 'translate3d('+ev.pageX+'px,'+ev.pageY+'px,0) scale(1,1)' : me._xtc.preSnap.transform;
+//~ console.log( 'translate3d('+ev.screenX+'px,'+ev.screenY+'px,0) scale(1,1)');
+			el.style.width = me._xtc.preSnap.width;
+			el.style.height = me._xtc.preSnap.height;
+			//~ delete me._xtc.preSnap;
+			el.removeAttribute('snapped');
+		}
+
+	} },
+
+
+	snap: { value: function(dir) {
+		var me = this;
+		var el = me._xtc.movingObj;
+		if ( !me._xtc.movableContainer ) me._xtc.movableContainer = el.parentNode;
+			var bounds = me._xtc.movableContainer.getBoundingClientRect();
+			var apply;
+			if ( typeof(dir)!='object') return;
+			var snapped = Object.keys(dir);
+			
+		var dStyle = window.getComputedStyle(el);
+		if ( !me._xtc.preSnap ) {
+			me._xtc.preSnap = {
+				transform: dStyle.transform=='none' ? 'translate3d(0,0,0) scale(1,1)' : dStyle.transform ,
+				width: dStyle.width,
+				height: dStyle.height,
+			};
+console.log('saved presnap pos', me._xtc.preSnap);
+		}
+
+		if ( !snapped.length && me._xtc.snapped) {
+			xtc.animateEl( el ,'noeffect',function(){},'maximizing');
+			return me.unsnap();
+		}
+			
+		me._xtc.snapped = dir;
+			
+			if ( snapped.length ) el.setAttribute('snapped', snapped.join(''));
+			if ( snapped.length>1 ) {
+				apply = {transform: 'translate3d(0,0,0) scale(1,1)', width: bounds.width/2 +'px', height: bounds.height/2+'px' };
+				if ( dir.top && dir.left ) {  }
+				else if ( dir.top && dir.right ) { apply.transform = 'translate3d('+bounds.width/2+'px,0,0) scale(1,1)';  }
+				else if ( dir.bottom && dir.left ) { apply.transform = 'translate3d(0,'+bounds.height/2+'px,0) scale(1,1)'; }
+				else if ( dir.bottom && dir.right ) { apply.transform = 'translate3d('+bounds.width/2+'px,'+bounds.height/2+'px,0) scale(1,1)';  }
+				
+				xtc.animateEl( el ,apply,function(){},'maximizing');
+				return;
+			}
+			else if ( dir.top==1 ) { 
+				el.setAttribute('maximized', 'maximized');
+				apply = {transform: 'translate3d(0,0,0) scale(1,1)', width: bounds.width +'px', height: bounds.height+'px' }; 
+			}
+			else if ( dir.top==2 ) { 
+				apply = {transform: 'translate3d(0,0,0) scale(1,1)', width: bounds.width +'px', height: bounds.height/2+'px' }; 
+			}
+			else if ( dir.bottom ) { 
+				apply = {transform: 'translate3d(0,'+(bounds.height/2)+'px,0) scale(1,1)', width: bounds.width +'px', height: bounds.height/2+'px' }; 
+			}
+			else if ( dir.left ) { 
+				apply = {transform: 'translate3d(0,0,0) scale(1,1)', width: bounds.width/2 +'px', height: bounds.height+'px' }; 
+			}
+			else if ( dir.right ) { 
+				apply = {transform: 'translate3d('+(bounds.width/2)+'px,0,0) scale(1,1)', width: bounds.width/2 +'px', height: bounds.height+'px' }; 
+			}
+			
+			if (apply) xtc.animateEl( el ,apply,function(){},'maximizing');
+	} },
+}))});
+
+
+
+
+</script>

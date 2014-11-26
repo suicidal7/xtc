@@ -1,0 +1,56 @@
+<template id="xtc-desktop-intro">
+	<style>
+	 :host {
+		-background-color: rgba(0,0,0,0.75);
+		flex: 1 1 auto;
+		align-self: stretch;
+		padding: 20px;
+		display: flex;
+		flex-flow: column nowrap;
+		align-items: stretch;
+		align-content: stretch;
+		justify-content: flex-start;
+	}
+
+	::content h1 {
+		padding: 5px 0;
+		font-weight: bold;
+		font-size: 16px;
+	}
+
+	::content h3 {
+		padding: 5px;
+		font-weight: bold;
+		font-size: 14px;
+	}
+
+	::content p {
+		margin: 5px;
+	}
+
+	::content ul {
+		margin-left: 20px;
+	}
+	
+	::content h1, ::content main {
+		flex: 0 1 auto;
+	}
+	::content footer {
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: flex;
+		flex-flow: column nowrap;
+	}
+	</style>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-desktop-intro'] = {
+	skinId: 'xtc-desktop-intro',
+	skin: function(el, shadowEl) {
+	
+	},
+};
+</script>

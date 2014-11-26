@@ -1,0 +1,108 @@
+
+<template id="xtc-desktop">
+	<xtc-xsocket></xtc-xsocket>
+	<xtc-keybinder></xtc-keybinder>
+	<xtc-workspace>
+	
+	</xtc-workspace>
+	<xtc-taskbar xtc-resizable="n">
+		<xtc-pills-launcher></xtc-pills-launcher>
+		<xtc-active-pills></xtc-active-pills>
+	</xtc-taskbar>
+	<xtc-xlogin data-xsocket-closest="xtc-xsocket"></xtc-xlogin>
+</template>
+
+
+<script type="text/javascript">
+
+document.registerElement('xtc-taskbar', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+}))});
+
+
+document.registerElement('xtc-desktop', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: {
+		value: function()  {
+			var me = this;
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+
+			
+			me._xtc = {};
+console.log('xtc-desktop created callback');
+
+			this.addEventListener('focus', function(ev) {
+				//~ xtc.__activeKeyBinder = ev.target.querySelector('* /deep/ xtc-keybinder');
+				if ( ev.target !== me ) return;
+				console.log('Desktop focused', ev.target);
+			},true);
+			this.addEventListener('blur', function(ev) {
+//~ console.log('new focus', ev.relatedTarget, ev);
+				if ( ev.target !== me || me.contains(ev.relatedTarget) ) return;
+				//~ xtc.__activeKeyBinder = ev.target.querySelector('* /deep/ xtc-keybinder');
+				console.log('Desktop blured',  ev.target);
+				me.focus();
+			},true);
+		
+		
+			//~ data-x-host
+			this._xtc.xskt = this.querySelector('xtc-xsocket');
+			this._xtc.xskt.setAttribute( 'data-x-host', this.getAttribute('data-x-host') );
+		}
+	},
+	attachedCallback: {
+		value: function() {
+			if ( this._xtc.lastParent === this.parentNode ) return;
+			this._xtc.lastParent = this.parentNode;
+			this.focus();
+			
+			var me = this;
+			var btn = this.querySelector('xtc-pills-launcher');
+			var keys = this.querySelector('xtc-keybinder');
+			if ( keys ) {
+				keys.bindKey('Alt', function(ev) { btn.click();  });
+				
+				keys.bindKey('F5', function(ev) {},null,true );
+				keys.bindKey('Ctrl+R', function(ev) { console.log('here'); ev.stopPropagation(); ev.preventDefault(); return false;},null,true );
+			}
+			
+			//~ document.querySelector('xtc-workspace').innerHTML+='<xtc-window xtc-movable></xtc-window>'; //.appendChild(document.createElement('xtc-window2'))
+			//~ this.launchPill('xtc-desktop-intro');
+			//~ this.launchPill('xtc-demo');
+			this.launchPill('xtc-editor');
+			//~ setTimeout(function() {
+				//~ me.launchPill('xtc-xterm');
+			//~ }, 500);
+			return;
+			
+			//~ this.getWorkspace().createWindow();
+			setTimeout(function() {
+				me.launchPill('xtc-image-viewer','https://192.168.0.13/imgs/wallpapers/mountain_creek_spring.jpg');
+				setTimeout(function() {
+					me.launchPill('xtc-image-viewer','https://192.168.0.13/imgs/wallpapers/wood_5.jpg');
+					setTimeout(function() {
+						me.launchPill('xtc-desktop-intro');
+					}, 800);
+				}, 800);
+			}, 800);
+		}
+	},
+	
+	getWorkspace: {
+		value: function()  {
+			return this.querySelector('xtc-workspace');
+		}
+	},
+	launchPill: { value: function(pillName, args) {
+		var pillInfo;
+		if ( !xtc.registeredElements.hasOwnProperty(pillName) || !(pillInfo=xtc.registeredElements[pillName].prototype.pillInfo) ) return;
+		var pill = document.createElement(pillName);
+		pillInfo = pillInfo();
+console.log('pillInfo', pillName, pillInfo);
+		var win = this.getWorkspace().createWindow( pillInfo.title, {icon: 'pill-'+pillName, content: pill} );
+		pill.energize( args );
+		win.dispatchEvent(new CustomEvent('xtc-window', {detail: 'opened'}) );
+	} },
+}))});
+</script>
+

@@ -1,0 +1,32 @@
+<template id="xtc-active-pills">
+<style>
+:host {
+}
+</style>
+<content></content>
+</template>
+
+<template id="xtc-active-pills-btn">
+	<style>
+	:host(.active) xtc-icon-button {
+		opacity: 1;
+	}
+	</style>
+	<xtc-icon-button></xtc-icon-button>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-active-pills'] = {
+	skinId: 'xtc-active-pills',
+	skin: function(el, shadowEl) {
+	},
+};
+
+xtc.skins.skin1['xtc-active-pills>a'] = {
+	skinId: 'xtc-active-pills-btn',
+	skin: function(el, shadowEl) {
+		shadowEl.querySelector('xtc-icon-button').setAttribute('is', el.getAttribute('data-icon') );
+	},
+};
+</script>
