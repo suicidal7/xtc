@@ -71,6 +71,7 @@ console.log('xtc-xsocket[%s]: io.connect host=>',this._xtc.uid, host);
 		me._xtc.skt.on('autherror', function(nfo) {
 			console.log('autherror', nfo);
 			me.parentNode.classList.add( 'data-xsocket-requires-login' );
+			me.parentNode.classList.remove( 'data-xsocket-login-attempt' );
 		});
 		
 		me._xtc.skt.on('sessionKey', function(nfo) {
@@ -82,6 +83,7 @@ console.log('xtc-xsocket[%s]: io.connect host=>',this._xtc.uid, host);
 			
 			me._xtc.is_open = true;
 			me.parentNode.classList.remove( 'data-xsocket-requires-login' );
+			me.parentNode.classList.remove( 'data-xsocket-login-attempt' );
 			serveCallbacks('sessionKey', nfo);
 			me.dispatchEvent(new CustomEvent('xtc-xsocket', {detail: 'ready'}) );
 			
@@ -136,6 +138,8 @@ console.log('xtc-xsocket[%s]: REconnected', me._xtc.uid);
 	} },
 
 	login: { value: function(user, pwd) {
+		this.parentNode.classList.remove( 'data-xsocket-requires-login' );
+		this.parentNode.classList.add( 'data-xsocket-login-attempt' );
 		this._xtc.skt.emit('login', user, pwd);
 	} },
 

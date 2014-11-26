@@ -457,7 +457,10 @@ io.sockets.on('connection', function (socket) {
 		console.log('User login', usr);
 		pam.authenticate(usr, pwd, function(err) {
 			if(err) {
-				socket.emit('autherror', 'Login Failed');
+				console.log('User auth error!', usr);
+				setTimeout(function() { //don't reply just yet!
+					socket.emit('autherror', 'Login Failed');
+				},5000);
 			}
 			else {
 				console.log("Authenticated: ", usr);

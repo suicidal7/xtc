@@ -76,11 +76,13 @@ document.registerElement('xtc-xlogin', {prototype: Object.create(HTMLElement.pro
 			};
 			
 			if ( !validate_frm() ) {
-				me.animateEl.call(me.querySelector('fieldset'), 'noeffect',null,'shake');
+				xtc.animateEl(me.querySelector('fieldset'), 'noeffect',null,'shake');
 			}
 			else {
 				var skt = me.closest( me.getAttribute('data-xsocket-closest') );
-				if ( skt ) skt.login(user, pwd);
+				if ( skt ) {
+					skt.login(user, pwd);
+				}
 			}
 			return false;
 		};
