@@ -147,10 +147,22 @@ document.registerElement = function(tag, opts) {
 
 xtc._defBeforeUnload = window.onbeforeunload;
 window.onbeforeunload = function() {
+	if ( !confirm("ok?","you sure?!!!") ) return false;
+	
 	if ( xtc._defBeforeUnload ) xtc._defBeforeUnload();
 	for(var i=0; i<xtc._onBeforeUnloadChain.length; i++) xtc._onBeforeUnloadChain[i]();
 	console.log('BYEBYE! :(  foobar= xtc-xsocket');
 };
+
+xtc.__createShadowRoot = HTMLElement.prototype.createShadowRoot;
+HTMLElement.prototype.createShadowRoot = function() {
+	//~ console.log('shadow root created on', this);
+	if ( !this.shadowRoots ) this.shadowRoots = [];
+	var shadowRoot = xtc.__createShadowRoot.apply(this, arguments);
+	this.shadowRoots.push(shadowRoot);
+	return shadowRoot;
+};
+
 /*
 XtcNode = {};
 	

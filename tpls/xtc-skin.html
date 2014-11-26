@@ -150,9 +150,9 @@ if ( skinSel=='xtc-tabs')
 				
 				if ( node.shadowRoot ) {
 					this.skinNodes( node.shadowRoot.children, unskin );
-					for(var srx in node.shadowRoots ) {
-						if ( node.shadowRoots[srx] != node.shadowRoot ) {
-							this.skinNodes( node.shadowRoots[srx].children, unskin );
+					for(var srx in node.__shadowRoots ) {
+						if ( node.__shadowRoots[srx] != node.shadowRoot ) {
+							this.skinNodes( node.__shadowRoots[srx].children, unskin );
 						}
 					}
 				}
@@ -182,7 +182,7 @@ if ( skinSel=='xtc-tabs')
 		skinSel = skinSel || el.getAttribute('data-skin');
 		if ( !skinSel || !skinSel.length ) return;
 		
-		if ( el.shadowRoots && el.shadowRoots[ this._skinName+'@'+skinSel ] ) {
+		if ( el.__shadowRoots && el.__shadowRoots[ this._skinName+'@'+skinSel ] ) {
 //~ console.log('ALREADY SKINNED', skinSel, el);
 			return;
 		}
@@ -199,8 +199,8 @@ if ( skinSel=='xtc-tabs')
 			//~ shadowRoot = el.shadowRoot ? el.shadowRoot : el.createShadowRoot();
 			shadowRoot = el.createShadowRoot();
 			shadowRoot.appendChild(clone);
-			if ( !el.shadowRoots ) el.shadowRoots={};
-			el.shadowRoots[ this._skinName+'@'+skinSel ] = shadowRoot;
+			if ( !el.__shadowRoots ) el.__shadowRoots={};
+			el.__shadowRoots[ this._skinName+'@'+skinSel ] = shadowRoot;
 			
 			//~ el.__SKINNED__[this._skinName+'@'+skinSel] = shadowRoot;
 			

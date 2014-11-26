@@ -113,19 +113,18 @@ console.log('http file mode', mode, req.responseText.length);
 	} },
 	
 	beforeSave: { value: function(article, callback) {
-		this._xtc.beforeSave[article] = callback;
+		this._xtc.beforeSave[article.getAttribute('data-uid')] = callback;
 	} },
 	
 	saveCurrentDoc: { value: function() {
 		var wrapper = this.$focus;
-		
-		if ( this._xtc.beforeSave[wrapper] ) {
-			this._xtc.beforeSave[wrapper]();
+		var uid = wrapper.getAttribute('data-uid')
+		if ( this._xtc.beforeSave[uid] ) {
+			this._xtc.beforeSave[uid]();
 		}
 		
-		var uid = wrapper.getAttribute('data-uid');
 		var fileData = wrapper.querySelector('textarea').value;
-		console.log('Saving doc:', wrapper, fileData);
+		console.log('Saving doc:', wrapper, fileData.length);
     
 			var req = new XMLHttpRequest();
 

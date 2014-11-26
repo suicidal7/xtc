@@ -70,6 +70,10 @@ console.log('childmutations on tabs', rec.type, rec.attributeName, rec.target, b
 		shadowRoot.querySelector('main').setAttribute('tabindex','-1');
 		var keys = shadowRoot.querySelector('xtc-keybinder');
 		if ( keys ) {
+			keys.bindKey('Ctrl+W', function() {
+console.log('tabs caught Ctrl+W, closing active tab...');
+				me.closeActiveTab();
+			}, 0, true);
 			keys.bindKey('Ctrl+PageUp', function() {
 				me.tabCycle(-1);
 			});
@@ -124,11 +128,22 @@ console.log('childmutations on tabs', rec.type, rec.attributeName, rec.target, b
 	removeTabs: { value: function(arts) {
 		for(var i=0; i<arts.length; i++) {
 			if ( arts[i].tagName != 'ARTICLE' ) continue;
-			//TODO:
+			btn = this.getBtnFromArticle(arts[i]);
+			if ( btn ) btn.remove();
 			
 		}
 	} },
+	
+	getBtnFromArticle: { value: function(art) {
+		return this._xtc.tabs.querySelector('[href="#'+art.getAttribute('data-uid')+'"]');
+	} },
 
+	closeActiveTab: { value: function(val) {
+		var doc = this.querySelector('[selected]');
+		this.tabCycle();
+		doc.remove();
+	} },
+	
 	tabCycle: { value: function(val) {
 		var idx
 			, me = this

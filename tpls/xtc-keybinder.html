@@ -43,8 +43,12 @@ console.log('key-binds attached to:', target);
 			target.style.outline='0';
 			
 			var me = this;
-				target.addEventListener('keydown', function(ev) {
-//~ console.log('keydOWN AND NEAREST XTc-binder is:', obj, ev.target);
+			
+			if ( !xtc.__KEYBINDER__ ) {
+				xtc.__KEYBINDER__ = 1;
+				
+				window.addEventListener('keydown', function(ev) {
+//~ console.log('keydOWN AND NEAREST XTc-binder is:', ev.target);
 					if ( me.onKeyDown(ev)=== false ) {
 						ev.preventDefault();
 						ev.stopPropagation();
@@ -52,7 +56,7 @@ console.log('key-binds attached to:', target);
 					}
 				}, true);
 				
-				target.addEventListener('keyup', function(ev) {
+				window.addEventListener('keyup', function(ev) {
 //~ console.log('keyUP AND NEAREST XTc-binder is:', obj, ev.target);
 					if ( me.onKeyUp(ev)=== false ) {
 						ev.preventDefault();
@@ -61,30 +65,72 @@ console.log('key-binds attached to:', target);
 					}
 				}, true);
 				
-		}
-	},
-	onKeyDown: {
-		value: function(ev)  {
-			var key = xtc.__keyNames[ev.keyCode];
-			this._xtc.lastKeyCode = ev.keyCode;
-		//~ console.log('keydown', key);
-			if ( this._xtc.overrideSystemKeys.hasOwnProperty(key) ) {
-					ev.preventDefault();
-					ev.stopPropagation();
-					return false;
 			}
 		}
 	},
-	onKeyUp: {
-		value: function(ev) {
+	reverseBrowseTree: { value: function(node)  {
+				if (!node) return;
+				if ( node.tagName=='XTC-KEYBINDER' ) { //break out to find the next upper keybinder in tree
+					node = node.parentNode.host ? node.parentNode.host : node.parentNode;
+					node = node.parentNode.host ? node.parentNode.host : node.parentNode;
+				}
+				//find keybinder in direct children
+				for(var i=0;i<node.children.length;i++) {
+					if ( node.children[i].tagName=='XTC-KEYBINDER' ) {
+						//~ console.log('node: ', node.tagName, node);
+						return node.children[i];
+					}
+				}
+				//find keybinder in direct children of shadowRoots!
+				if ( node.shadowRoots ) {
+					for(var k=0; k<node.shadowRoots.length; k++) {
+						var sc = node.shadowRoots[k].children;
+						for(var i=0;i<sc.length;i++) {
+							if ( sc[i].tagName=='XTC-KEYBINDER' ) {
+								//~ console.log('node: ', node.tagName, node);
+								return sc[i];
+							}
+						}
+					}
+				}
+				
+				if ( !node.parentNode ) return;
+				if ( node.parentNode.host ) return this.reverseBrowseTree(node.parentNode.host);
+				return this.reverseBrowseTree(node.parentNode);
+	} },
+	onKeyDown: { value: function(ev)  {
 			var key = xtc.__keyNames[ev.keyCode];
+			var me = this;
+			this._xtc.lastKeyCode = ev.keyCode;
+			var binding = me._getEventKeyBinding(ev);
+		console.log('keydown key=%s Binding=[%s]', key, binding);
+			
+			var prevKeybinder = me.reverseBrowseTree(ev.target);
+			while( prevKeybinder ) {
+				if ( prevKeybinder._xtc.overrideSystemKeys.hasOwnProperty(binding) ) {
+	console.log('trying to override system key', binding);
+						ev.preventDefault();
+						ev.stopPropagation();
+						return false;
+				}
+				prevKeybinder = me.reverseBrowseTree(prevKeybinder);
+			}
+		}
+	},
+	_getEventKeyBinding: { value: function(ev) {
 			var binding = [];
+			var key = xtc.__keyNames[ev.keyCode];
 			if (ev.ctrlKey) binding.push('Ctrl');
 			if (ev.altKey) binding.push('Alt');
 			if (ev.shiftKey) binding.push('Shift');
 			if (ev.modKey) binding.push('Mod');
 			if ( binding.indexOf(key)<0 ) binding.push(key);
-			binding = binding.join('+');
+			return binding.join('+');
+	} },
+	
+	onKeyUp: {
+		value: function(ev) {
+			
 			if ( this._xtc.lastKeyCode != ev.keyCode ) {
 				var bs = this._xtc.keyBinds[ this._xtc.lastKeyBind ];
 				if ( bs ) {
@@ -94,18 +140,24 @@ console.log('key-binds attached to:', target);
 				}
 				return; //combination handled?
 			}
+			var binding = this._getEventKeyBinding(ev);
 //~ console.log('keyup', binding, this._xtc.keyBinds.hasOwnProperty(binding), this );
 			
-			if ( this._xtc.keyBinds.hasOwnProperty(binding) ) {
-				this._xtc.lastKeyBind = binding;
-				var bs = this._xtc.keyBinds[binding];
-				var isCancel;
-				for(var i=0; i<bs.length && (!bs[i][1] || bs[i][1].contains(ev.target) ) && (isCancel=bs[i][0](ev))!==false; i++);
-				if ( isCancel===false ) {
-					ev.preventDefault();
-					ev.stopPropagation();
-					return false;
+			var prevKeybinder = this.reverseBrowseTree(ev.target);
+			while( prevKeybinder ) {
+console.log('checking keybinding vs', prevKeybinder.parentNode);
+				if ( prevKeybinder._xtc.keyBinds.hasOwnProperty(binding) ) {
+					this._xtc.lastKeyBind = binding;
+					var bs = prevKeybinder._xtc.keyBinds[binding];
+					var isCancel;
+					for(var i=0; i<bs.length && (!bs[i][1] || bs[i][1].contains(ev.target) ) && (isCancel=bs[i][0](ev))!==false; i++) { console.log('called a keybind calleback', binding, bs.length); };
+					if ( isCancel===false ) {
+						ev.preventDefault();
+						ev.stopPropagation();
+						return false;
+					}
 				}
+				prevKeybinder = this.reverseBrowseTree(prevKeybinder);
 			}
 		},
 	},

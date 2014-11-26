@@ -66,7 +66,8 @@ console.log('xtc-desktop created callback');
 				keys.bindKey('Alt', function(ev) { btn.click();  });
 				
 				keys.bindKey('F5', function(ev) {},null,true );
-				keys.bindKey('Ctrl+R', function(ev) { console.log('here'); ev.stopPropagation(); ev.preventDefault(); return false;},null,true );
+				keys.bindKey('Ctrl+W', function(ev) { console.log('desktop caught and blocked Ctrl+W'); },null,true );
+				keys.bindKey('Ctrl+R', function(ev) { },null,true );
 			}
 			
 			//~ document.querySelector('xtc-workspace').innerHTML+='<xtc-window xtc-movable></xtc-window>'; //.appendChild(document.createElement('xtc-window2'))

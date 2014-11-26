@@ -112,6 +112,10 @@ console.log('beforeSave', el);
 					if ( rec.type=='attributes' ) {
 						var dirty = rec.target.hasAttribute('dirty') ? ' <em>*</em>' : '';
 						rec.target.setAttribute('data-title', fsTools.baseName(rec.target.getAttribute('data-uid')) + dirty);
+						if ( !dirty ) {
+							//mark codemirror as clean
+							el.__codeMirror.getDoc().markClean();
+						}
 					}
 				}
 			});
