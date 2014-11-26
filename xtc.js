@@ -210,6 +210,7 @@ app.get('/file/*', function (req, res) {
 				}
 				else {
 					console.log('WARN: Failed Serving', m.d);
+					res.status(403);
 					res.end();
 				}
 			};
@@ -217,11 +218,13 @@ app.get('/file/*', function (req, res) {
 		}
 		else {
 			console.log('User file access failed [0]: UKEY=%s, FILE=%s', uKey, req.url);
+			res.status(403);
 			res.end();
 		}
 	}, function() {
 		if (!userId) {
 			console.log('User file access failed [1]: UKEY=%s, FILE=%s', uKey, req.url);
+			res.status(403);
 			res.end();
 		}
 	})

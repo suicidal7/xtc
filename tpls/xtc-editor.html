@@ -67,8 +67,8 @@ console.log('setting val', rec.target.getAttribute('data-uid'));
 	energize: { value: function(args) {
 		var me = this;
 		setTimeout(function() {
-			me.open('/tmp/foo.php');
-			me.open('/tmp/foo.js');
+			me.open(localStorage.userHome+'/.bashrc');
+			me.open('/tmp/foo.js2');
 		}, 1000);
 	} },
 	
@@ -150,6 +150,8 @@ console.log('http file mode', mode, req.responseText.length);
 console.log('resolveMode', file,mime);
 		var ext = fsTools.ext(file);
 		if (ext=='php' ) return 'text/x-php';
+		var base = fsTools.baseName(file);
+		if ( base == '.bashrc' || base == '.profile' ) return 'shell';
 		if (mime) {
 			var i = mime.indexOf(';');
 			if ( i>-1 ) mime = mime.substr(0,i);
