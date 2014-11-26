@@ -52,7 +52,7 @@ document.registerElement('xtc-editor', {prototype: Object.create(HTMLElement.pro
 			for(var r=0; r<mutations.length; r++) {
 				rec = mutations[r];
 				if ( rec.type == 'attributes' && rec.target.hasAttribute('selected') ) {
-console.log('setting val', rec.target.getAttribute('data-uid'));
+//~ console.log('setting val', rec.target.getAttribute('data-uid'));
 					textLoc.value = rec.target.getAttribute('data-uid');
 				}
 			}
@@ -68,7 +68,7 @@ console.log('setting val', rec.target.getAttribute('data-uid'));
 		var me = this;
 		setTimeout(function() {
 			me.open(localStorage.userHome+'/.bashrc');
-			me.open('/tmp/foo.js2');
+			//~ me.open('/tmp/foo.js2');
 		}, 1000);
 	} },
 	

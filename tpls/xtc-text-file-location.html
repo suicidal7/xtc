@@ -70,6 +70,7 @@ document.registerElement('xtc-text-file-location', {prototype: Object.create(HTM
 	value: {
 		set: function(v) {
 			var lstat;
+//~ console.log('setting val',v);
 			if ( v instanceof Array ) {
 				lstat = v[1];
 				v = v[0];
@@ -92,7 +93,7 @@ document.registerElement('xtc-text-file-location', {prototype: Object.create(HTM
 		
 		var onStat = function(res) {
 			me._xtc.val = {};
-			if ( ! res || res.d ) return;
+			if ( ! res || !res.d ) return;
 			if ( fsTools.nodeType( res.d.mode ) == 'folder' ) {
 				me._xtc.val.dirName = v;
 				me._xtc.val.baseName = '';
@@ -114,6 +115,7 @@ document.registerElement('xtc-text-file-location', {prototype: Object.create(HTM
 		else {
 			me._xtc.proper = 1;
 			//first lstat the target to figure out if its a folder or what...
+//~ console.log('setting val3', v, stat);
 			if ( stat ) onStat({d: stat});
 			else me.socketIO.send('js', [ 'fs.lstatSync', v ], onStat);
 		}
