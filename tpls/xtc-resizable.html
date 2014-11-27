@@ -115,7 +115,35 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 					this._xtc.maxHeight = parseInt(style.maxHeight) || 0;
 					this._xtc.minWidth = parseInt(style.minWidth) || 0;
 					this._xtc.minHeight = parseInt(style.minHeight) || 0;
-					this._xtc.xform = style.position=='absolute';
+					this._xtc.xform = (style.position=='absolute' || style.position=='fixed');
+					if ( !this._xtc.xform ) {
+						var ps = xtc.previousEl(this._xtc.resizeEl, 'XTC-RESIZABLE');
+						this._xtc.prevEl = ns;
+console.log('prevSibling',this._xtc.resizeEl,ns);
+						if ( ps ) {
+							var adjStyleP = window.getComputedStyle(ps);
+							if ( adjStyleP ) {
+								this._xtc.adjStartP = {width: parseInt(adjStyleP.width), height: parseInt(adjStyleP.height)};
+								ps.classList.add('xtc-resized');
+							}
+						}
+						var ns = xtc.nextEl(this._xtc.resizeEl, 'XTC-RESIZABLE');
+						this._xtc.nextEl = ns;
+console.log('nextSibling',this._xtc.resizeEl,ns);
+						if ( ns ) {
+							var adjStyleN = window.getComputedStyle(ns);
+							if ( adjStyleN ) {
+								this._xtc.adjStartN = {width: parseInt(adjStyleN.width), height: parseInt(adjStyleN.height)};
+								ns.classList.add('xtc-resized');
+							}
+						}
+						
+					}
+					this._xtc.resizeEl.classList.add('xtc-resized');
+					
+					var onMouseMove = function(ev) {
+						me.onMouseMove.call(me,ev);
+					};
 					
 					var me = this;
 					var onMouseUp = function(ev) {
@@ -124,11 +152,8 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 						window.removeEventListener('mousemove', onMouseMove);
 						for(var i=0; i<me._xtc.iframes.length; i++) {
 							me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', onMouseUp);
-							me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', onMouseDown);
+							me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', onMouseMove);
 						}
-					};
-					var onMouseMove = function(ev) {
-						me.onMouseMove.call(me,ev);
 					};
 					
 					this._xtc.iframes = document.getElementsByTagName('iframe');
@@ -153,9 +178,11 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 		var apply = {},
 			w = ev.screenX - this._xtc.start.x,
 			h = ev.screenY - this._xtc.start.y;
+		var adjApply = {}, adjIs='nextEl';
 
 		if ( this._xtc.resizing.e ) {
 			apply.width = this._xtc.start.width+w;
+			if (!this._xtc.xform)	adjApply.width = this._xtc.adjStartN.width-w; 
 		}
 		else if ( this._xtc.resizing.w ) {
 			w = w * -1;
@@ -164,6 +191,10 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 			;
 			apply.transform = 'translate('+x+'px,'+y+'px)';
 			apply.width = this._xtc.start.width+w;
+			if (!this._xtc.xform)	{
+				adjApply.width = this._xtc.adjStartP.width-w; 
+				adjIs = 'prevEl';
+			}
 		}
 		if ( this._xtc.resizing.n ) {
 			h = h * -1;
@@ -172,9 +203,14 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 			;
 			apply.transform = 'translate('+x+'px,'+y+'px)';
 			apply.height = this._xtc.start.height+h;
+			if (!this._xtc.xform)	{
+				adjApply.height = this._xtc.adjStartP.height-h; 
+				adjIs = 'prevEl';
+			}
 		}
 		else if ( this._xtc.resizing.s ) {
 			apply.height = this._xtc.start.height+h;
+			if (!this._xtc.xform)	adjApply.height = this._xtc.adjStartN.height-h; 
 		}
 		
 		//apply min/max styles if set
@@ -188,6 +224,9 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 		
 		if (apply.width) this._xtc.resizeEl.style.width = apply.width +'px';
 		if (apply.height) this._xtc.resizeEl.style.height = apply.height +'px';
+		if (adjApply.width) this._xtc[adjIs].style.width = adjApply.width +'px';
+		if (adjApply.height) this._xtc[adjIs].style.height = adjApply.height +'px';
+// console.log('resizable', apply, adjApply, adjIs);
 //~ console.log('xform', this._xtc.xform, apply.transform);
 		if (this._xtc.xform && apply.transform) this._xtc.resizeEl.style.transform = apply.transform;
 			

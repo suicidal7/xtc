@@ -1,6 +1,6 @@
 xtc = {
 	templates: {}, //allows override of default template : may have deprecated this!
-	skins: {},
+	skins: {base: {}},
 	globalHooks: {},
 	registeredElements: {},
 	_onBeforeUnloadChain: [],
@@ -133,6 +133,16 @@ xtc = {
 		return prevStyles;
 	},
 
+	previousEl: function(el, notTag) {
+		while( (el=el.previousSibling) && (el instanceof Text || (notTag && el.tagName==notTag)) );
+		return el;
+	},
+	
+	nextEl: function(el, notTag) {
+		while( (el=el.nextSibling) && (el instanceof Text || (notTag && el.tagName==notTag)) );
+		return el;
+	},
+	
 	
 };
 

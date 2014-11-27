@@ -40,7 +40,7 @@ document.registerElement('xtc-window', {prototype: Object.create(HTMLElement.pro
 		me.setAttribute('draggable','true');
 		me.ondragstart=function(ev) {
 			console.log('window started dragging!', event.target.id);
-			ev.dataTransfer.setData("text", event.target.id );
+			ev.dataTransfer.setData("xtc-window", event.target.id );
 		};
 	}	},
 	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {

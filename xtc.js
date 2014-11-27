@@ -231,7 +231,7 @@ app.get('/file/*', function (req, res) {
 	
 });
 
-app.get('/', function (req, res) {
+app.get('/*', function (req, res) {
 	var xtcTag = '<!--XTC-->'
 		, indexTpl = fs.readFileSync(__dirname + '/public/start.html', 'utf-8')
 		, idxStart = indexTpl.indexOf(xtcTag)

@@ -1,0 +1,98 @@
+<style>
+	xtc-code-fiddler {
+		flex: 1 1 auto;
+		align-self: stretch;
+
+		display: flex;
+		flex-flow: row nowrap;
+		position: relative;
+		overflow: auto;
+	}
+	xtc-code-fiddler>div.xtc-resized {
+		flex: 1 1 auto;
+	}
+	xtc-code-fiddler>div {
+		flex: 1 1 50%;
+		align-self: stretch;
+		display: flex;
+		flex-flow: column nowrap;
+		position: relative;
+	}
+	
+	xtc-code-fiddler>div>.xtc-resized {
+		flex: 1 1 auto;
+	}
+	xtc-code-fiddler>div>article,xtc-code-fiddler>div>iframe {
+		flex: 1 1 50%;
+		align-self: stretch;
+		position: relative;
+		display: flex;
+	}
+	
+	xtc-code-fiddler>div.left {
+		background-color: steelblue;
+
+	}
+	
+	xtc-code-fiddler .CodeMirror .CodeMirror-scroll {
+		align-self: stretch;
+		flex: 1 1 auto;
+	}
+	xtc-code-fiddler .CodeMirror {
+		font-size: 14px;
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: flex;
+		flex-flow: column nowrap;
+		resize: none;
+		height: auto !important;
+	}
+	
+	xtc-code-fiddler xtc-resize-handle {
+		background-color: rgba(245,0,0,0.2);
+		opacity: 1 !important;
+	}
+
+
+
+</style>
+
+<template id="xtc-code-fiddler">
+	<div class="left">
+		<xtc-resizable data-handles="e"></xtc-resizable>
+		<article>
+			<xtc-resizable data-handles="s"></xtc-resizable>
+			<textarea name="html"></textarea>
+		</article>
+		<article>
+			<textarea name="css"></textarea>
+		</article>
+	</div>
+	<div class="right">
+		<article>
+			<xtc-resizable data-handles="s"></xtc-resizable>
+			<textarea name="js"></textarea>
+		</article>
+		<iframe name="demo">
+				
+		</iframe>
+	</div>
+</template>
+
+
+<script type="text/javascript">
+	document.registerElement('xtc-code-fiddler', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+
+			var me = this;
+			me._xtc={};
+		} },
+		attachedCallback: { value: function() {
+			 this.classList.add('foobar');
+		} },
+
+	}))});
+</script>

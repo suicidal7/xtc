@@ -49,83 +49,8 @@
 
 <script type="text/javascript">
 
-xtc.skins.skin1['xtc-editor>xtc-tabs>article'] = {
-	skinId: 'xtc-editor-textarea',
-	skin: function(el, shadowEl) {
-		//~ el.querySelector('textarea').removeAttribute('resizable');
-		var textArea = el.querySelector('textarea');
 
-		var mode =  textArea.getAttribute('data-mode') || 'text/plain';
-		
-//~ console.log('textarea skinning', el);
-		//~ this.cm = new CodeMirror(el.querySelector('textarea'), {
-		el.__codeMirror = CodeMirror.fromTextArea(textArea, {
-			lineNumbers: true, 
-			//~ mode: "application/x-httpd-php",
-			//~ mode: "text/x-php",
-			mode: mode,
-			matchBrackets: true,
-			matchTags: true,
-			indentUnit: 2,
-			tabSize: 2,
-			theme: 'tomorrow-night-eighties',
-			indentWithTabs: true,
-			autoCloseBrackets : true,
-			autoCloseTags: true,
-			foldGutter: true,
-			styleActiveLine: true,
-			commentBlankLines: true,
-			extraKeys: {
-				"Alt-Q": function(cm){ cm.foldCode(cm.getCursor()); },
-				"Ctrl-Q": function(cm){ cm.execCommand('toggleComment'); },
-				"F3": function(cm){ cm.execCommand('findNext'); },
-				"Shift-F3": function(cm){ cm.execCommand('findPrev'); },
-				//~ "Ctrl-N": function(cm){ alert('new doc'); return false; },
-			},
-			gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-		});
-		
-		el.__codeMirror.on("change", function() {
-			//~ textArea.fireEvent('change');
-			if ( el.__codeMirror.getDoc().isClean() ) el.removeAttribute('dirty');
-			else el.setAttribute('dirty','dirty');
-	  });
-		
-		el.addEventListener('focus', function(ev) {
-//~ console.log('yippi focus', el, ev.target, el.__codeMirror);
-			el.__codeMirror.refresh();
-			el.__codeMirror.focus();
-		});
-		
-		el.nearest('xtc-editor').beforeSave( el, function() {
-console.log('beforeSave', el);
-			el.__codeMirror.save();
-		});
-		
-		var observer = xtc.mutationObservers['skin1-editor-article'];
-		if ( !observer ) {
-			xtc.mutationObservers['skin1-editor-article'] = observer = new MutationObserver(function(mutations) {
-//~ console.log('mutations: skin1-editor-article', mutations);
-				var rec;
-				for(var i=0; i<mutations.length; i++) {
-					rec = mutations[i];
-					if ( rec.type=='attributes' ) {
-						var dirty = rec.target.hasAttribute('dirty') ? ' <em>*</em>' : '';
-						rec.target.setAttribute('data-title', fsTools.baseName(rec.target.getAttribute('data-uid')) + dirty);
-						if ( !dirty ) {
-							//mark codemirror as clean
-							el.__codeMirror.getDoc().markClean();
-						}
-					}
-				}
-			});
-		}
-
-		observer.observe(el, {attributes:true, attributeFilter: ['dirty']});
-
-		
-	},
-};
+xtc.skins.skin1['xtc-editor>xtc-tabs>article'] = xtc.skins.base['code-mirror'];
 
 xtc.skins.skin1['xtc-editor'] = {
 	skinId: 'xtc-editor',

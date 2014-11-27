@@ -43,6 +43,9 @@ document.registerElement('xtc-editor', {prototype: Object.create(HTMLElement.pro
 		me._xtc.tabs.addEventListener('change', function(ev) {
 			var t= ev.target;
 			while(t.parentNode!=me._xtc.tabs) t=t.parentNode;
+			//note: this should not fire if codemirror is shadowing this textarea, so we rely on
+			// mutation to dirty flag to happen through codemirror instead (or whatever replaces it)...
+console.log('xtc-editor: detected change on textarea, marking dirty');
 			t.setAttribute('dirty', 'dirty');
 		});
 	
@@ -68,8 +71,11 @@ document.registerElement('xtc-editor', {prototype: Object.create(HTMLElement.pro
 	energize: { value: function(args) {
 		var me = this;
 		setTimeout(function() {
-			me.open(localStorage.userHome+'/.bashrc');
-			//~ me.open('/tmp/foo.js2');
+			//me.open(localStorage.userHome+'/.bashrc');
+			//~ me.open('/tmp/foo.js');
+			me.open(xtc.__dirname + '/xtc.js');
+			me.open(xtc.__dirname + '/xtc-client-engine.js');
+			me.open(xtc.__dirname + '/tpls/xtc-desktop.html');
 		}, 1000);
 	} },
 	
@@ -95,8 +101,8 @@ console.log('http file mode', mode, req.responseText.length);
 			docWrapper.setAttribute('tab-index', '-1');
 			docWrapper.setAttribute('data-uid', file);
 			docWrapper.setAttribute('data-title', fsTools.baseName(file));
+			docWrapper.setAttribute('data-mode', me.resolveMode(file, mode));
 			var doc = document.createElement('textarea');
-			doc.setAttribute('data-mode', me.resolveMode(file, mode));
 			docWrapper.appendChild( doc );
 			me.querySelector('xtc-tabs').appendChild(docWrapper);
 
@@ -113,16 +119,10 @@ console.log('http file mode', mode, req.responseText.length);
 	
 	} },
 	
-	beforeSave: { value: function(article, callback) {
-		this._xtc.beforeSave[article.getAttribute('data-uid')] = callback;
-	} },
-	
 	saveCurrentDoc: { value: function() {
 		var wrapper = this.$focus;
 		var uid = wrapper.getAttribute('data-uid')
-		if ( this._xtc.beforeSave[uid] ) {
-			this._xtc.beforeSave[uid]();
-		}
+		wrapper.dispatchEvent(new CustomEvent('xtc-beforeSave'));
 		
 		var fileData = wrapper.querySelector('textarea').value;
 		console.log('Saving doc:', wrapper, fileData.length);

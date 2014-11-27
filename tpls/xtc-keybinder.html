@@ -53,7 +53,7 @@ console.log('key-binds attached to:', target);
 // 				});
 				
 				window.addEventListener('keydown', function(ev) {
-console.log('keydOWN AND NEAREST XTc-binder is:', ev.keyCode);
+// console.log('keydOWN AND NEAREST XTc-binder is:', ev.keyCode);
 					if ( me.onKeyDown(ev)=== false ) {
 						ev.preventDefault();
 						ev.stopPropagation();
@@ -108,12 +108,12 @@ console.log('keydOWN AND NEAREST XTc-binder is:', ev.keyCode);
 			var me = this;
 			this._xtc.lastKeyCode = ev.keyCode;
 			var binding = me._getEventKeyBinding(ev);
-		console.log('keydown key=%s Binding=[%s]', key, binding);
+// 		console.log('keydown key=%s Binding=[%s]', key, binding);
 			
 			var prevKeybinder = me.reverseBrowseTree(ev.target);
 			while( prevKeybinder ) {
 				if ( prevKeybinder._xtc.overrideSystemKeys.hasOwnProperty(binding) ) {
-	console.log('trying to override system key', binding);
+// 	console.log('trying to override system key', binding);
 						ev.preventDefault();
 						ev.stopPropagation();
 						return false;
@@ -150,7 +150,7 @@ console.log('keydOWN AND NEAREST XTc-binder is:', ev.keyCode);
 			
 			var prevKeybinder = this.reverseBrowseTree(ev.target);
 			while( prevKeybinder ) {
-console.log('checking keybinding vs', prevKeybinder.parentNode);
+// console.log('checking keybinding vs', prevKeybinder.parentNode);
 				if ( prevKeybinder._xtc.keyBinds.hasOwnProperty(binding) ) {
 					this._xtc.lastKeyBind = binding;
 					var bs = prevKeybinder._xtc.keyBinds[binding];

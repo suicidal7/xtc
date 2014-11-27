@@ -176,8 +176,8 @@ if ( skinSel=='xtc-tabs')
 	
 	applyElSkin: { value: function(el, skinSel) {
 		if ( !el.__SKINNED__ ) el.__SKINNED__ = {};
-		//~ if ( el.__SKINNED__[this._skinName+'@'+skinSel] ) return;
-		//~ el.__SKINNED__[this._skinName+'@'+skinSel] = 1;
+		if ( el.__SKINNED__[this._skinName+'@'+skinSel] ) return;
+		el.__SKINNED__[this._skinName+'@'+skinSel] = 1;
 		
 		skinSel = skinSel || el.getAttribute('data-skin');
 		if ( !skinSel || !skinSel.length ) return;

@@ -1,36 +1,151 @@
+<style>
+	xtc-xdiff {
+		justify-content: flex-start;
+		align-content: flex-start;
+		align-items: stretch;		
+		flex: 1 1 auto ;
+		align-self: stretch;
+		position: relative;
+	}
+	xtc-xdiff>header {
+		position: absolute;
+		top: 0; right: 0; height: 24px; left: 0;
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: flex-start;
+		align-content: flex-start;
+		align-items: flex-start;
+	}
+	xtc-xdiff>header>* {
+		flex: 1 1 auto;
+	}
+	xtc-xdiff>main {
+		top: 25px; right: 0; bottom: 0; left: 0;
+		display: flex;
+		overflow: auto;
+		position: absolute;
+	}
+	xtc-xdiff>main>.CodeMirror-merge {
+		flex: 1 1 auto;
+		align-self: stretch;
+		height: auto !important;
+		display: flex;
+	}
+	xtc-xdiff .CodeMirror-merge-gap {
+		height: auto;
+		flex: 0 1 5%;
+		align-self: stretch;
+		width: auto !important;
+	}
 
+	xtc-xdiff .CodeMirror-merge-2pane .CodeMirror-merge-pane {
+		flex: 1 1 40%;
+		align-self: stretch;
+		display: flex;
+		width: auto;
+	}
+
+	xtc-xdiff .CodeMirror-merge, xtc-xdiff .CodeMirror-merge .CodeMirror {
+		height: auto;
+	}
+
+	xtc-xdiff .CodeMirror-merge-pane-rightmost {
+		position: relative;
+		right: auto;
+		z-index: 0;
+	}
+</style>
+<template id="xtc-xdiff">
+	<header>
+		<xtc-text-file-location></xtc-text-file-location>
+		<xtc-text-file-location></xtc-text-file-location>
+	</header>
+	<main>
+
+	</main>
+</template>
+
+<template id="xtc-demo0">
+	<xtc-xdiff>
+
+	</xtc-xdiff>
+
+</template>
 
 <template id="xtc-demo">
-	<xtc-windows-container>
+	<xtc-code-fiddler>
 
-	</xtc-windows-container>
-	
+	</xtc-code-fiddler>
 </template>
+
 
 <script type="text/javascript">
 
+	document.registerElement('xtc-xdiff', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
 
-document.registerElement('xtc-demo', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
-	createdCallback: { value: function() {
-		var tpl = document.getElementById( this.tagName.toLowerCase() );
-		var clone = document.importNode(tpl.content, true);
-		this.appendChild(clone);
-		
-		var me = this;
-		me._xtc={};
-		
-		//~ this.setAttribute('tabindex','-1');
-	} },
-	
-	
-	pillInfo: { value: function() {
-		return {title: 'xDemo', };
-	} },
-	
-	energize: { value: function(args) {
-		var me = this;
-	} },
+			var me = this;
+			me._xtc={};
 
-}))});
+
+
+			//~ this.setAttribute('tabindex','-1');
+		} },
+
+		attachedCallback: { value: function() {
+			var value = document.documentElement.innerHTML.substr(0,4000);
+			var orig1 = value.replace(/\.\.\//g, "codemirror/").replace("xtc-window", "xtc-foobar");
+			orig1 = orig1.substr(0, 3000) + orig1.substr(3115);
+
+			var target = this.querySelector('main');
+			target.innerHTML='';
+			var dv = CodeMirror.MergeView(target, {
+				value: value,
+				origLeft: null,
+				orig: orig1,
+				lineNumbers: true,
+				mode: "text/html",
+				highlightDifferences: 1
+			});
+
+		} },
+
+		pillInfo: { value: function() {
+			return {title: 'xDiff', };
+		} },
+
+		energize: { value: function(args) {
+			var me = this;
+		} },
+
+	}))});
+
+
+
+	document.registerElement('xtc-demo', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+
+			var me = this;
+			me._xtc={};
+
+			//~ this.setAttribute('tabindex','-1');
+		} },
+
+
+		pillInfo: { value: function() {
+			return {title: 'xDemo', };
+		} },
+
+		energize: { value: function(args) {
+			var me = this;
+		} },
+
+	}))});
 
 </script>

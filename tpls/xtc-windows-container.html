@@ -8,7 +8,7 @@ document.registerElement('xtc-windows-container', {prototype: Object.create(HTML
 			ev.preventDefault();
 		};
 		this.ondrop = function(ev) {
-			var winId = ev.dataTransfer.getData('text');
+			var winId = ev.dataTransfer.getData('xtc-window');
 			if (winId) {
 				var win = document.getElementById(winId);
 				if (win) { 
