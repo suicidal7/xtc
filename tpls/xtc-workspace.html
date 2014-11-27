@@ -85,7 +85,7 @@ console.log('setting active0', w);
 			
 			this.addEventListener('mousedown', function(ev) {
 				var win = ev.target.nearest('xtc-window');
-				if ( win ) me.$activeWindow = win;
+				if ( win && win.parentNode==me ) me.$activeWindow = win;
 			},true);
 
 			this.addEventListener('xtc-movable.edgeMark', function(ev) {

@@ -31,12 +31,13 @@ document.registerElement('xtc-editor', {prototype: Object.create(HTMLElement.pro
 		});
 		
 		var keys = me.querySelector('xtc-keybinder');
-		keys.bindKey('Alt+O', function(ev) {
+		keys.bindKey('Ctrl+O', function(ev) {
 			me.querySelector('xtc-text-file-location').fireEvent('focus');
 		}, null, true);
-		keys.bindKey('Alt+S', function(ev) {
+		keys.bindKey('Ctrl+S', function(ev) {
 			me.saveCurrentDoc();
 		}, null, true);
+
 	
 	
 		me._xtc.tabs.addEventListener('change', function(ev) {

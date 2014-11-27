@@ -30,7 +30,10 @@ document.registerElement('xtc-text-file-location', {prototype: Object.create(HTM
 		me.formatPath( me._xtc.val.dirName, 1 );
 		
 		me.addEventListener('focus', function(ev) {
-			if ( ev.target == me ) me.fileEl.focus();
+			if ( ev.target == me ) {
+				me.fileEl.select();
+				me.fileEl.focus();
+			}
 		});
 		
 		//~ this.setAttribute('tabindex','-1');

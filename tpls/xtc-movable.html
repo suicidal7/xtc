@@ -44,6 +44,7 @@ console.log('setting movable', this._xtc.movableHandle);
 		}
 
 		this._xtc.bound = this.getAttribute('data-bound') || 'unbound'; //val can be bound/unbound
+
 	} },
 	
 	detachedCallback: { value: function() {
@@ -58,6 +59,7 @@ console.log('setting movable', this._xtc.movableHandle);
 		me._xtc.dragInfo = {};
 		me._xtc.movableContainer = el.parentNode;
 		
+		if ( me._xtc.movingObj.getAttribute('xtc-movable')=='false' ) return;
 		me._xtc.movingObj.style.zIndex++;
 	
 		var dStyle = window.getComputedStyle(el,null);
@@ -84,7 +86,10 @@ console.log('saved presnap pos', me._xtc.preSnap);
 			me._xtc.iframes[i].contentWindow.addEventListener('mouseup', me.mouseup);
 			me._xtc.iframes[i].contentWindow.addEventListener('mousemove', me.mousemove);
 		}
+		
+
 		window.addEventListener('mouseup', me.mouseup);
+		
 		window.addEventListener('mousemove', me.mousemove);
 
 		if ( me._xtc.movableContainer && me._xtc.bound =='bound' ) {

@@ -9,7 +9,7 @@ xtc.__keyNames = (function() {
 									46: "Delete", 59: ";", 61: "=", 91: "Mod", 92: "Mod", 93: "Mod", 107: "=", 109: "-", 127: "Delete",
 									173: "-", 186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
 									221: "]", 222: "'", 63232: "Up", 63233: "Down", 63234: "Left", 63235: "Right", 63272: "Delete",
-									63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert"};
+									63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert", 99990: "LeftClick"};
 	(function() {
 		// Number keys
 		for (var i = 0; i < 10; i++) keyNames[i + 48] = keyNames[i + 96] = String(i);
@@ -45,10 +45,15 @@ console.log('key-binds attached to:', target);
 			var me = this;
 			
 			if ( !xtc.__KEYBINDER__ ) {
-				xtc.__KEYBINDER__ = 1;
+				xtc.__KEYBINDER__ = me;
+				
+// 				window.addEventListener('mousedown', function(ev) {
+// 					me._xtc.lastKeyCode = '99990';
+// 					me._xtc.lastKeyBinding = ( ev.altKey ? 'Alt+' : '' ) + 'LeftClick';
+// 				});
 				
 				window.addEventListener('keydown', function(ev) {
-//~ console.log('keydOWN AND NEAREST XTc-binder is:', ev.target);
+console.log('keydOWN AND NEAREST XTc-binder is:', ev.keyCode);
 					if ( me.onKeyDown(ev)=== false ) {
 						ev.preventDefault();
 						ev.stopPropagation();

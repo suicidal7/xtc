@@ -12,13 +12,64 @@
 		flex: 1 1 auto;
 		align-self: stretch;
 	}
-	::content>*:nth-child(1) {
-		flex: 0 1 auto;
-		align-self: auto;
-	}
+		
+		::content xtc-windows-container /deep/ xtc-resizable,
+		::content xtc-windows-container /deep/ xtc-window-controls {
+			display: none;
+		}
+		
+		::content xtc-windows-container /deep/ xtc-window-wrapper {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+		
+		::content xtc-windows-container /deep/ xtc-window-title-bar {
+			background-color: #365D98;
+			color: white;
+			opacity: 0.95;
+		}
+		
+		::content xtc-windows-container /deep/ xtc-window-title-bar > xtc-window-title-text {
+			color: white;
+		}
+		
+		::content xtc-windows-container {
+			flex: 1 1 auto;
+			align-self: stretch;
+			display: flex;
+			flex-flow: row wrap;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+		
+		::content xtc-windows-container>xtc-window {
+			flex: none !important;
+			position: relative !important;
+			left: auto !important;
+			top: auto !important;
+			width: 50% !important;
+			height: 50% !important;
+			transform: none !important;
+			overflow: auto;
+			display: flex;
+		}
+
+		::content xtc-windows-container>xtc-window:nth-child(2n+1):last-of-type {
+			width: 100% !important;
+		}
+
 		
 		::content td {
-			
+			width: 50%;
+			height: 50%;
+			background-color: steelblue;
+			border: 1px solid green;
 		}
 	</style>
 	

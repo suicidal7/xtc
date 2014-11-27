@@ -136,6 +136,17 @@ xtc = {
 	
 };
 
+window.addEventListener('touchstart', function(ev) {
+	ev.target.fireEvent('mousedown');
+});
+window.addEventListener('touchend', function(ev) {
+	ev.target.fireEvent('mouseup');
+});
+window.addEventListener('touchmove', function(ev) {
+	ev.target.fireEvent('mousemove');
+});
+
+
 xtc._realRegisterElement = document.registerElement;
 
 document.registerElement = function(tag, opts) {

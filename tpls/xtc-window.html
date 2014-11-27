@@ -36,6 +36,12 @@ document.registerElement('xtc-window', {prototype: Object.create(HTMLElement.pro
 			var t = me.querySelector('main').firstChild;
 			if (t) t.focus();
 		});
+		
+		me.setAttribute('draggable','true');
+		me.ondragstart=function(ev) {
+			console.log('window started dragging!', event.target.id);
+			ev.dataTransfer.setData("text", event.target.id );
+		};
 	}	},
 	attributeChangedCallback: { value: function(attrName, oldVal, newVal) {
 		console.log('window attr change', attrName, oldVal, newVal);
