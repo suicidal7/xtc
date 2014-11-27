@@ -1,0 +1,67 @@
+<template id="xtc-windows-container">
+
+	<style>
+		::content xtc-resizable,
+		::content xtc-window-controls {
+			display: none;
+		}
+
+		::content /deep/ xtc-window-wrapper {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+
+		::content /deep/ xtc-window-title-bar {
+			background-color: #365D98;
+			color: white;
+			opacity: 0.95;
+		}
+
+		::content /deep/ xtc-window-title-bar > xtc-window-title-text {
+			color: white;
+		}
+
+		:host {
+			flex: 1 1 auto;
+			align-self: stretch;
+			display: flex;
+			flex-flow: row wrap;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+
+		::content>xtc-window {
+			flex: none !important;
+			position: relative !important;
+			left: auto !important;
+			top: auto !important;
+			width: 50% !important;
+			height: 50% !important;
+			transform: none !important;
+			overflow: auto;
+			display: flex;
+		}
+
+		::content>xtc-window:nth-child(2n+1):last-of-type {
+			width: 100% !important;
+		}
+
+	</style>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+xtc.skins.skin1['xtc-windows-container'] = {
+	skinId: 'xtc-windows-container',
+	//~ skin: function(el, shadowEl) {
+	
+	//~ },
+};
+</script>

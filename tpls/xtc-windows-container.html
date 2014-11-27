@@ -1,0 +1,32 @@
+<script type="text/javascript">
+
+document.registerElement('xtc-windows-container', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+	createdCallback: { value: function() {
+		var me = this;
+
+		this.ondragover = function(ev) {
+			ev.preventDefault();
+		};
+		this.ondrop = function(ev) {
+			var winId = ev.dataTransfer.getData('text');
+			if (winId) {
+				var win = document.getElementById(winId);
+				if (win) { 
+					me.appendChild(win);
+					win.setAttribute('xtc-movable', 'false');
+				}
+			}
+		};
+	} },
+	
+	pillInfo: { value: function() {
+		return {title: 'Windows Grouper', };
+	} },
+	
+	energize: { value: function(args) {
+		var me = this;
+	} },
+
+}))});
+
+</script>
