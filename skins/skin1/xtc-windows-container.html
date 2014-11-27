@@ -1,12 +1,12 @@
 <template id="xtc-windows-container">
 
 	<style>
-		::content xtc-resizable,
-		::content xtc-window-controls {
+		::content>xtc-window /deep/ xtc-resizable,
+		::content>xtc-window /deep/ xtc-window-controls {
 			display: none;
 		}
 
-		::content /deep/ xtc-window-wrapper {
+		::content>xtc-window /deep/ xtc-window-wrapper {
 			position: absolute;
 			top: 0;
 			bottom: 0;
@@ -14,13 +14,13 @@
 			right: 0;
 		}
 
-		::content /deep/ xtc-window-title-bar {
+		::content>xtc-window /deep/ xtc-window-title-bar {
 			background-color: #365D98;
 			color: white;
 			opacity: 0.95;
 		}
 
-		::content /deep/ xtc-window-title-bar > xtc-window-title-text {
+		::content>xtc-window /deep/ xtc-window-title-bar > xtc-window-title-text {
 			color: white;
 		}
 
