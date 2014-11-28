@@ -232,13 +232,15 @@ app.get('/file/*', function (req, res) {
 });
 
 app.get('/*', function (req, res) {
-	var wc;
+	var wc,dc;
 	if ( req.url.substr(0,'/dev-'.length)=='/dev-' )
 		wc = req.url.substr('/dev-'.length);
-	return app.serveWebComponents(req,res,wc)
+	if ( req.url.substr(0,'/demo-'.length)=='/demo-' )
+		dc = req.url.substr('/demo-'.length);
+	return app.serveWebComponents(req,res,wc,dc)
 });
 				
-app.serveWebComponents = function(req, res, devComponent) {
+app.serveWebComponents = function(req, res, devComponent, demoComponent) {
 	var indexHead = fs.readFileSync(__dirname + '/public/index.head.html', 'utf-8')
 		, indexBody = fs.readFileSync(__dirname + '/public/index.body.html', 'utf-8')
 		, tpls = fs.readdirSync(__dirname + '/public/tpls')
@@ -288,7 +290,12 @@ console.log('Serving: ', req.url);
 	}
 	
 	res.write('</head><body>');
-	if (!devComponent) res.write( indexBody ); //print body only if we're not in dev output mode
+	if ( demoComponent ) {
+		res.write('<xtc-skin data-skin="skin1"><'+demoComponent+'></'+demoComponent+'></xtc-skin>');
+	}
+	else {
+		if (!devComponent) res.write( indexBody ); //print body only if we're not in dev output mode
+	}
 	res.write('</body></html>');
 	res.end();
 };

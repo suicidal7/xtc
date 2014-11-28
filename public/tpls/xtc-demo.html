@@ -22,34 +22,35 @@
 	xtc-xdiff>main {
 		top: 25px; right: 0; bottom: 0; left: 0;
 		display: flex;
-		overflow: auto;
+		overflow: hidden;
 		position: absolute;
 	}
-	xtc-xdiff>main>.CodeMirror-merge {
+	xtc-xdiff0>main>.CodeMirror-merge {
 		flex: 1 1 auto;
 		align-self: stretch;
 		height: auto !important;
 		display: flex;
 	}
-	xtc-xdiff .CodeMirror-merge-gap {
+	xtc-xdiff0 .CodeMirror-merge-gap {
 		height: auto;
 		flex: 0 1 5%;
 		align-self: stretch;
 		width: auto !important;
 	}
 
-	xtc-xdiff .CodeMirror-merge-2pane .CodeMirror-merge-pane {
+	xtc-xdiff0 .CodeMirror-merge-2pane .CodeMirror-merge-pane {
 		flex: 1 1 40%;
 		align-self: stretch;
-		display: flex;
+		display: inline-block;
 		width: auto;
+		overflow: auto;
 	}
 
-	xtc-xdiff .CodeMirror-merge, xtc-xdiff .CodeMirror-merge .CodeMirror {
+	xtc-xdiff0 .CodeMirror-merge, xtc-xdiff0 .CodeMirror-merge .CodeMirror {
 		height: auto;
 	}
 
-	xtc-xdiff .CodeMirror-merge-pane-rightmost {
+	xtc-xdiff0 .CodeMirror-merge-pane-rightmost {
 		position: relative;
 		right: auto;
 		z-index: 0;
@@ -73,9 +74,12 @@
 </template>
 
 <template id="xtc-demo">
-	<xtc-code-fiddler>
+	<xtc-xdiff></xtc-xdiff>
+	<!--
+<xtc-code-fiddler>
 
-	</xtc-code-fiddler>
+</xtc-code-fiddler>
+-->
 </template>
 
 
@@ -90,10 +94,20 @@
 			var me = this;
 			me._xtc={};
 
-
-
+			
 			//~ this.setAttribute('tabindex','-1');
+			window.addResizeListener(me, me.onResize);
 		} },
+		
+		onResize: { value: function(ev) {
+// 			console.log('onresize', this, ev.target);
+			var me = this;
+				if (!me._xtc.codeMirrorView) return;
+				var style = window.getComputedStyle(me.querySelector('main'));
+				for(var i=0; i<me._xtc.codeMirrorView.length; i++) {
+					me._xtc.codeMirrorView[i].style.height = style.height;
+				}
+		}},
 
 		attachedCallback: { value: function() {
 			var value = document.documentElement.innerHTML.substr(0,4000);
@@ -111,6 +125,9 @@
 				highlightDifferences: 1
 			});
 
+			this._xtc.codeMirrorView = this.querySelectorAll('.CodeMirror-merge.CodeMirror-merge-2pane,.CodeMirror-merge .CodeMirror');
+			
+			this.onResize();
 		} },
 
 		pillInfo: { value: function() {

@@ -1,0 +1,26 @@
+<template id="xtc-code-demo">
+	<style>
+		:host {
+			display: flex;
+			flex: 1 1 auto;
+			align-self: stretch;			
+		}
+
+		::content iframe {
+			flex: 1 1 auto;
+			align-self: stretch;
+		}
+	</style>
+
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+	xtc.skins.skin1['xtc-code-demo'] = {
+		skinId: 'xtc-code-demo',
+		//~ skin: function(el, shadowEl) {
+
+		//~ },
+	};
+</script>

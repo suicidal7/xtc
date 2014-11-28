@@ -109,6 +109,9 @@ console.log('pillInfo', pillName, pillInfo);
 		var win = this.getWorkspace().createWindow( pillInfo.title, {icon: 'pill-'+pillName, content: pill} );
 		pill.energize( args );
 		win.dispatchEvent(new CustomEvent('xtc-window', {detail: 'opened'}) );
+		pill.__win = win;
+		win.__pill = pill;
+		return pill;
 	} },
 }))});
 </script>

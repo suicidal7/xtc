@@ -18,7 +18,7 @@ document.registerElement('xtc-active-pills', {prototype: Object.create(HTMLEleme
 				if ( rec.type=='attributes' && rec.attributeName=='selected' ) {
 					var btn = me.querySelector('[href="#'+rec.target.getAttribute('id')+'"]');
 					if ( rec.target.hasAttribute('selected') ) me.$active=btn;
-					else btn.classList.remove('active');
+					else if (btn) btn.classList.remove('active');
 				} }
 			}
 		});

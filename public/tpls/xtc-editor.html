@@ -37,6 +37,9 @@ document.registerElement('xtc-editor', {prototype: Object.create(HTMLElement.pro
 		keys.bindKey('Ctrl+S', function(ev) {
 			me.saveCurrentDoc();
 		}, null, true);
+		keys.bindKey('F5', function(ev) {
+			me.runCurrentDoc();
+		}, null, true);
 
 	
 	
@@ -76,7 +79,8 @@ console.log('xtc-editor: detected change on textarea, marking dirty');
 			me.open(xtc.__dirname + '/xtc.js');
 			me.open(xtc.__dirname + '/xtc-client-engine.js');
 			me.open(xtc.__dirname + '/public/tpls/xtc-desktop.html');
-		}, 1000);
+			me.open(xtc.__dirname + '/public/tpls/xtc-demo.html');
+		}, 700);
 	} },
 	
 	
@@ -169,7 +173,33 @@ console.log('resolveMode', file,mime);
 			return this._xtc.tabs.querySelector('[selected]');
 		}
 	},
-
+	
+	runCurrentDoc: { value: function() {
+		var wrapper = this.$focus;
+		var uid = wrapper.getAttribute('data-uid');
+		//todo: make this stuff into plugins
+		wrapper.dispatchEvent(new CustomEvent('xtc-beforeSave')); //trigger any textarea shadowing elements to update it...
+console.log('Truing to run:', uid);
+		if ( uid.substr(0, xtc.__dirname.length)==xtc.__dirname ) { //we are trying to run some part of our code!
+			var regex = new RegExp('^'+xtc.__dirname+'(\\/public\\/tpls\\/|\\/public\\/skins\\/[^\\/]+\\/)(.+)\\.html$');
+			var p = regex.exec(uid);
+			if ( !p ) return;
+			this.runXtcComponentDemo(p[2]);
+		}
+	} },
+	
+	runXtcComponentDemo: { value: function(pillName) {
+		console.log('running component demo...');
+		var desktop = this.nearest('xtc-desktop', true);
+		if (!desktop) return;
+		if ( !this._xtc.demoPill || !this._xtc.demoPill.__win.parentNode ) {
+			this._xtc.demoPill = desktop.launchPill( 'xtc-code-demo', pillName );
+		}
+		else {
+			this._xtc.demoPill.energize(pillName);
+		}
+		console.log('pill', this._xtc.demoPill.__win.parentNode);
+	} },
 
 }))});
 

@@ -169,7 +169,7 @@ document.registerElement = function(tag, opts) {
 xtc._defBeforeUnload = window.onbeforeunload;
 window.onbeforeunload = function() {
 	var url = document.location.origin;
-	if ( url!='' && url!='null') {
+	if ( url!='' && url!='null' && window==window.top) {
 console.log('Leaving ', url);
 		if ( !confirm("ok?","you sure?!!!") ) return false;
 	} 

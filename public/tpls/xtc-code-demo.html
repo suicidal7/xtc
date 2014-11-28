@@ -1,0 +1,83 @@
+<template id="xtc-code-demo">
+	<iframe>
+
+	</iframe>
+</template>
+
+<script type="text/javascript">
+
+
+	document.registerElement('xtc-code-demo', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+
+			var me = this;
+			me._xtc={};
+
+		} },
+
+		pillInfo: { value: function() {
+			return {title: 'XTC - Component Demo', hidden: true };
+		} },
+
+		energize: { value: function(tpl, data) {
+			var me = this;
+			if ( tpl )
+				me.querySelector('iframe').src = '/demo-'+tpl;
+			
+			/*
+			data = xtc.extend({
+				tpl: false,
+				skin: false,
+			},data);
+			
+			
+			var neededParts = 3;
+			var onPartDone = function() {
+				neededParts--;
+				if (neededParts < 1) {
+					console.log('Loaded all parts needed for demo...');
+					refreshDemo();
+				}
+			}
+
+			if ( data.tpl ) {
+				neededParts--;
+				me._xtc.compTpl = data.tpl;
+			}
+			else {
+			//get the template
+			me.loadUrl('/tpls/'+tpl+'.html', function(tplsResp) {
+				me._xtc.compTpl = tplsResp;
+				onPartDone();
+			});
+				
+			}
+			
+			if ( data.skin ) {
+				neededParts--;
+				me._xtc.skinTpl = data.skin;
+			}
+			else {
+
+			//get the skin
+			me.loadUrl('/skins/skin1/'+tpl+'.html', function(skinsResp) {
+				me._xtc.skinTpl = skinsResp;
+				onPartDone();
+			});
+				
+			}
+
+			//get the outer stuff!
+			me.loadUrl('/dev-'+tpl, function(res) {
+				me._xtc.mainTpl = res;
+				onPartDone();
+			});
+*/
+		} },
+
+
+	}))});
+</script>
