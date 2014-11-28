@@ -1,0 +1,84 @@
+<script type="text/javascript">
+
+	document.registerElement('xtc-xplorer-shortcuts', {prototype: Object.create(HTMLSelectElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var me = this;
+			me._xtc={};
+
+// 			me.setAttribute('multiple', 'true');
+
+			var grp = this.addTitle('Places');
+			this.addLink('Home', localStorage.userHome,grp);
+			var p, places = [ 'Desktop', 'Documents', 'Downloads', 'Music', 'Pictures', 'Videos'  ];
+			for(var i=0; i<places.length; i++) {
+				p = places[i];
+				this.addLink(p, localStorage.userHome+'/'+p, grp);
+			}
+			this.addLink('Temp', '/tmp',grp);
+
+			grp = this.addTitle('Devices');
+			this.addLink('Computer', '/', grp );
+
+			grp = this.addTitle('Bookmarks');
+
+			var req = new XMLHttpRequest();
+			req.onreadystatechange = function() {
+				if ( req.readyState!=4 || req.status!=200 ) return;
+				var places = req.responseText.split("\n");
+				for(var p=0; p<places.length; p++) {
+					if ( places[p].substr(0,'file://'.length)!='file://' ) continue;
+
+					var filename = places[p].substr(7);
+					var basename;
+					var idx = filename.search(/[^\\]\s/);
+					if ( idx > 0 ) {
+						basename = filename.substr( idx+2 );
+						filename = filename.substr( 0, idx+1 );
+					}
+					else {
+						basename = fsTools.baseName( filename );
+					}
+
+					me.addLink(basename, filename, grp);
+				}
+
+			};
+			req.open('GET', '/file'+localStorage.userHome+'/.gtk-bookmarks', true);
+			req.send();
+
+		} },
+
+		addTitle: { value: function(title) {
+			var grp = document.createElement('optgroup');
+			grp.label = title;
+			this.appendChild(grp);
+			return grp;
+		}},
+
+		addLink: { value: function(display, uid, grp) {
+			if ( this.querySelectorAll('option[value="'+uid+'"]').length>0 ) return;
+			
+			var opt = document.createElement('option');
+			opt.innerHTML = display;
+			opt.value = uid;
+			opt.setAttribute('rel', display);
+			grp.appendChild(opt);
+			return opt;
+		}},
+
+	})), extends: 'select'});
+
+
+	document.onreadystatechange = function() {
+		var repl = document.querySelectorAll('xtc-xplorer-shortcuts');
+
+		while(repl.length) {
+			var el = document.createElement('select', 'xtc-xplorer-shortcuts');
+			var r = repl[0];
+			if (!r.parentNode) return;
+			r.parentNode.insertBefore(el, r);
+			r.remove();
+		}
+	};
+
+</script>

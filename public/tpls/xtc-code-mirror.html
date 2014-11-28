@@ -94,7 +94,7 @@ console.log('code-mirror caught textarea change',ev);
 
 			el.__codeMirror.on("change", function(ev) {
 				//~ textArea.fireEvent('change');
-				console.log('code-mirror: change fired');
+// 				console.log('code-mirror: change fired');
 				if ( el.__codeMirror.getDoc().isClean() ) el.removeAttribute('dirty');
 				else el.setAttribute('dirty','dirty');
 			});
@@ -120,11 +120,11 @@ console.log('code-mirror caught textarea change',ev);
 						rec = mutations[i];
 						if ( rec.type=='attributes' ) {
 							var dirty = rec.target.hasAttribute('dirty') ? ' <em>*</em>' : '';
-							console.log('code-mirror: detected dirty flag change, newVal=%s', dirty);
+// 							console.log('code-mirror: detected dirty flag change, newVal=%s', dirty);
 							rec.target.setAttribute('data-title', fsTools.baseName(rec.target.getAttribute('data-uid')) + dirty);
 							if ( !dirty ) {
 								//mark codemirror as clean
-								console.log('dirty flag is off, marking doc as clean', el);
+// 								console.log('dirty flag is off, marking doc as clean', el);
 								el.__codeMirror.getDoc().markClean();
 							}
 						}

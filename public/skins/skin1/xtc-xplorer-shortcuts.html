@@ -1,0 +1,62 @@
+<style>
+	select[is=xtc-xplorer-shortcuts] optgroup {
+		margin: 2px 5px;
+		-color: red;
+	}
+
+	select[is=xtc-xplorer-shortcuts] option {
+		-color: green;
+			padding: 1px 0 1px 20px;
+			background: url(imgs/fatcow/16x16/folder.png);
+			background-size: 16px 16px;
+			background-repeat: no-repeat;
+		}
+
+		select[is=xtc-xplorer-shortcuts] option[rel=Home] {
+			background-image: url(imgs/fatcow/16x16/house.png);
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Desktop] {
+			background-image: url(imgs/fatcow/16x16/desktop.png);
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Documents] {
+			background: transparent url(imgs/fatcow/16x16/document_copies.png) top left no-repeat;
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Downloads] {
+			background: transparent url(imgs/fatcow/16x16/download.png) top left no-repeat;
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Music] {
+			background: transparent url(imgs/fatcow/16x16/music.png) top left no-repeat;
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Pictures] {
+			background: transparent url(imgs/fatcow/16x16/camera_small.png) top left no-repeat;
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Videos] {
+			background: transparent url(imgs/fatcow/16x16/film.png) top left no-repeat;
+		}
+		select[is=xtc-xplorer-shortcuts] option[rel=Computer] {
+			background: transparent url(imgs/fatcow/16x16/computer.png) top left no-repeat;
+		}
+
+</style>
+
+<!--
+<template id="xtc-xplorer-shortcuts">
+<style>
+
+</style>
+<content></content>
+</template>
+-->
+
+<script type="text/javascript">
+
+	xtc.skins.skin1['select[is="xtc-xplorer-shortcuts"]'] = {
+		// 	skinId: 'xtc-xplorer-shortcuts',
+		skin: function(el, shadowEl) {
+			el.setAttribute('multiple', "true");
+		},
+
+		unskin: function(el) {
+		},
+	};
+</script>

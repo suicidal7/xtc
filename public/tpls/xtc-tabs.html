@@ -43,7 +43,7 @@ document.registerElement('xtc-tabs', {prototype: Object.create(HTMLElement.proto
 					} //if ( rec.attributeName == 'selected' ) {
 					else if ( rec.attributeName == 'data-title' && rec.target.parentNode==me && rec.target.tagName=='ARTICLE' ) {
 						var btn = me._xtc.tabs.querySelector('[href="#'+rec.target.getAttribute('data-uid')+'"]');
-console.log('childmutations on tabs', rec.type, rec.attributeName, rec.target, btn);
+// console.log('childmutations on tabs', rec.type, rec.attributeName, rec.target, btn);
 						if ( btn ) {
 							btn.innerHTML = rec.target.getAttribute('data-title');
 						}
