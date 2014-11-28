@@ -103,7 +103,7 @@ fs.glob = function(path, _opts) {
 
 process.on('message', function(m, skt) {
 	if ( typeof(m)!='object' ) return;
-console.log('WS-Client>>> ',m);
+// console.log('WS-Client>>> ',m);
 	switch(m.o) {
 	case 'term':
 		if ( m.d && !terminals[m.d] ) launch_terminal(m.d);

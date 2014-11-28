@@ -3,37 +3,55 @@
 		flex: 1 1 auto;
 		align-self: stretch;
 
-		display: flex;
+		position: relative;
 		flex-flow: row nowrap;
 		position: relative;
 		overflow: auto;
 	}
-	xtc-code-fiddler>div.xtc-resized {
-		flex: 1 1 auto;
+	xtc-code-fiddler>header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 24px;
 	}
-	xtc-code-fiddler>div {
+	xtc-code-fiddler>main {
+		position: absolute;
+		top: 25px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+	}
+	xtc-code-fiddler>main>div {
 		flex: 1 1 50%;
 		align-self: stretch;
 		display: flex;
 		flex-flow: column nowrap;
 		position: relative;
 	}
-	
-	xtc-code-fiddler>div>.xtc-resized {
+
+	xtc-code-fiddler>main>div.xtc-resized {
 		flex: 1 1 auto;
 	}
-	xtc-code-fiddler>div>article,xtc-code-fiddler>div>iframe {
+	xtc-code-fiddler>main>div>section>article {
+		flex: 1 1 auto;
+		align-self: stretch;
+		display: none;
+	}
+	xtc-code-fiddler>main>div>section,
+	xtc-code-fiddler>main>div>iframe {
 		flex: 1 1 50%;
 		align-self: stretch;
 		position: relative;
 		display: flex;
 	}
-	
-	xtc-code-fiddler>div.left {
+
+	xtc-code-fiddler>main>div.left {
 		background-color: steelblue;
 
 	}
-	
+
 	xtc-code-fiddler .CodeMirror .CodeMirror-scroll {
 		align-self: stretch;
 		flex: 1 1 auto;
@@ -47,40 +65,102 @@
 		resize: none;
 		height: auto !important;
 	}
-	
+
 	xtc-code-fiddler xtc-resize-handle {
 		background-color: rgba(245,0,0,0.2);
 		opacity: 1 !important;
+		z-index: 6 !important;
 	}
 
+	xtc-code-fiddler>main>xtc-tabs {
+		position: absolute;
+		top: 0; left; 0; right: 0; bottom: 0;
+	}
+	article[is=xtc-code-fiddler-panes] {
+		display: flex;
+	}
 
+	xtc-code-fiddler input[is=xtc-skins-list] {
+		float: right;
+	}
+
+	xtc-code-fiddler a[href="#view"] {
+		float: right;
+	}
+
+	xtc-code-fiddler a[href="#save"] {
+		display: none;
+	}
+
+	xtc-code-fiddler[dirty] a[href="#save"] {
+		display: inline-block;
+	}
+
+	xtc-code-fiddler>main[data-show=tpl]>div>section>article[data-tpl] {
+		display: flex;
+	} 
+	xtc-code-fiddler>main[data-show=skin]>div>section>article[data-skin] {
+		display: flex;
+	} 
 
 </style>
 
 <template id="xtc-code-fiddler">
-	<div class="left">
-		<xtc-resizable data-handles="e"></xtc-resizable>
-		<article>
-			<xtc-resizable data-handles="s"></xtc-resizable>
-			<textarea name="html"></textarea>
-		</article>
-		<article>
-			<textarea name="css"></textarea>
-		</article>
-	</div>
-	<div class="right">
-		<article>
-			<xtc-resizable data-handles="s"></xtc-resizable>
-			<textarea name="js"></textarea>
-		</article>
-		<iframe name="demo">
-				
-		</iframe>
-	</div>
+	<xtc-keybinder></xtc-keybinder>
+	<header>
+		<a href="#try" class="button">Try</a>
+		<input is="xtc-components-list" placeHolder="Enter a component's name...">
+		<a href="#save" class="button">Save</a>
+		<a href="#view" class="button">Component View</a>
+		<input is="xtc-skins-list" placeHolder="Choose Skin to use..." value="skin1">
+	</header>
+	<main data-show="tpl">
+
+		<div class="left">
+			<xtc-resizable data-handles="e"></xtc-resizable>
+			<section>
+				<xtc-resizable data-handles="s"></xtc-resizable>
+
+				<article data-mode="text/html" data-tpl>
+					<textarea name="html"></textarea>
+				</article>
+				<article data-mode="text/html" data-skin>
+					<textarea name="html"></textarea>
+				</article>
+			</section>
+			<section>
+				<article data-mode="text/html" data-tpl>
+					<textarea name="js"></textarea>
+				</article>
+				<article data-mode="text/html" data-skin>
+					<textarea name="js"></textarea>
+				</article>
+			</section>
+		</div>
+		<div class="right">
+			<section>
+				<xtc-resizable data-handles="s"></xtc-resizable>
+				<article data-mode="text/html" data-tpl>
+					<textarea name="css"></textarea>
+				</article>
+				<article data-mode="text/html" data-skin>
+					<textarea name="css"></textarea>
+				</article>
+			</section>
+			<iframe name="demo">
+
+			</iframe>
+		</div>
+
+
+	</main>
 </template>
 
 
+
 <script type="text/javascript">
+
+
 	document.registerElement('xtc-code-fiddler', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
 		createdCallback: { value: function() {
 			var tpl = document.getElementById( this.tagName.toLowerCase() );
@@ -89,10 +169,133 @@
 
 			var me = this;
 			me._xtc={};
+
+			me._xtc.dummy = document.createElement('div');
+			me._xtc.currSkin = 'skin1';
+
+			me.querySelector('input[is=xtc-components-list]').addEventListener('change', function(ev) {
+				me._xtc.currTemplate = ev.target.value;
+				me.loadTemplate();
+			});
+			me.querySelector('input[is=xtc-skins-list]').addEventListener('change', function(ev) {
+				me._xtc.currSkin = ev.target.value;
+				me.refreshDemo();
+			});
+
+			me.querySelector('a[href="#try"]').addEventListener('click' ,function (ev) {
+				me.refreshDemo();
+				return false;
+			});
+
+			me.querySelector('a[href="#view"]').addEventListener('click' ,function (ev) {
+				var main = me.querySelector('main');
+				var mode = main.getAttribute('data-show');
+				if (mode=='tpl') {
+					ev.target.innerHTML = 'Skin View';
+					main.setAttribute('data-show','skin');
+				}
+				else {
+					ev.target.innerHTML = 'Component View';
+					main.setAttribute('data-show','tpl');
+				}
+				return false;
+			});
+			
+			var keys = me.querySelector('xtc-keybinder');
+			keys.bindKey('F5', function() {
+				me.refreshDemo();
+			},null, true)
 		} },
 		attachedCallback: { value: function() {
-			 this.classList.add('foobar');
+			this.classList.add('foobar');
+
 		} },
 
+		loadUrl:  { value: function(url, okCb, errCb) {
+			var req = new XMLHttpRequest();
+			req.onreadystatechange = function() {
+				if ( req.readyState!=4) return;
+				if ( req.status!=200 ) return errCb ? errCb(req) : undefined; //todo handle error
+				if (okCb) okCb(req.responseText);
+			};
+			req.open('GET', url);
+			req.send();
+		} },
+
+		parseHtmlIntoTextareas: { value: function (mixedHtml, dataType) {
+			var me = this;
+			var div = document.createElement('div');
+
+			div.innerHTML = mixedHtml ;
+			var css='',js='',html='';
+console.log('mixedHTML parsing', mixedHtml.length, dataType);
+			for(var i=0; i<div.children.length; i++) {
+				var c = div.children[i];
+				switch(c.tagName) {
+					case 'SCRIPT': js += c.outerHTML + "\r\n"; break;
+					case 'TEMPLATE': html += c.outerHTML + "\r\n"; break;
+					case 'STYLE': css += c.outerHTML + "\r\n"; break;
+				}
+			}
+
+			var el;
+			el = me.querySelector('['+dataType+']>textarea[name=html]');
+console.log('update html data', el, '['+dataType+']>textarea[name=html]', me);
+			el.value = html; el.fireEvent('change');
+			el = me.querySelector('['+dataType+']>textarea[name=css]')
+			el.value = css; el.fireEvent('change');
+			el = me.querySelector('['+dataType+']>textarea[name=js]')
+			el.value = js; el.fireEvent('change');
+
+		} },
+
+		loadTemplate: { value: function() {
+			var me = this;
+			if ( !me._xtc.currTemplate ) return;
+			console.log('fiddler: Loading template', me._xtc.currTemplate);
+			var tpl = me._xtc.currTemplate;
+
+			//get the skin
+			me.loadUrl('/skins/skin1/'+tpl+'.html', function(skinsResp) {
+				me._xtc.skinTpl = skinsResp;
+				me.parseHtmlIntoTextareas(skinsResp, 'data-skin');
+			});
+
+			//get the template
+			me.loadUrl('/tpls/'+tpl+'.html', function(tplsResp) {
+				me._xtc.compTpl = tplsResp;
+				me.parseHtmlIntoTextareas(tplsResp, 'data-tpl');
+
+			});
+
+			//get the outer stuff!
+			me.loadUrl('/dev-'+tpl, function(res) {
+				me._xtc.mainTpl = res;
+			});
+
+
+
+
+
+		} },
+		refreshDemo: { value: function() {
+			var me = this;
+			var div = me._xtc.dummy;
+			var tpl = me._xtc.currTemplate;
+			
+				div.innerHTML = me._xtc.mainTpl;
+			
+				//inject component skin in the skin template
+				var skin = div.querySelector('template[id=xtc-skin-'+me._xtc.currSkin+']');
+				skin.innerHTML += me._xtc.skinTpl;
+
+			window.foobar = div;
+			
+				var frame = me.querySelector('iframe[name=demo]');
+				//create our new awsome document
+				var data = '<!DOCTYPE html>\r\n<html><head>' + div.innerHTML +"\r\n\r\n"+ me._xtc.compTpl 
+				+ '</head><body><xtc-skin data-skin="'+me._xtc.currSkin+'"><'+tpl+'></'+tpl+'></xtc-skin></body></html>';
+				frame.srcdoc = data;
+		} },
 	}))});
 </script>

@@ -163,7 +163,7 @@ app.get('/term.js', function (req, res) {
 });
 
 app.get('/xtc.js', function (req, res) {
-	var tpls = fs.readdirSync(__dirname + '/tpls')
+	var tpls = fs.readdirSync(__dirname + '/public/tpls')
 		, data
 	;
 	
@@ -176,7 +176,7 @@ app.get('/xtc.js', function (req, res) {
 	for(var i=0; i<tpls.length; i++) {
 		ext = path.extname(tpls[i]);
 		if ( ext != '.js' ) continue;
-		data = fs.readFileSync(__dirname + '/tpls/' + tpls[i]);
+		data = fs.readFileSync(__dirname + '/public/tpls/' + tpls[i]);
 		res.write(data);
 		res.write("\r\n");
 	}
@@ -232,35 +232,44 @@ app.get('/file/*', function (req, res) {
 });
 
 app.get('/*', function (req, res) {
-	var xtcTag = '<!--XTC-->'
-		, indexTpl = fs.readFileSync(__dirname + '/public/start.html', 'utf-8')
-		, idxStart = indexTpl.indexOf(xtcTag)
-		, tpls = fs.readdirSync(__dirname + '/tpls')
-		, skins = fs.readdirSync(__dirname + '/skins')
+	var wc;
+	if ( req.url.substr(0,'/dev-'.length)=='/dev-' )
+		wc = req.url.substr('/dev-'.length);
+	return app.serveWebComponents(req,res,wc)
+});
+				
+app.serveWebComponents = function(req, res, devComponent) {
+	var indexHead = fs.readFileSync(__dirname + '/public/index.head.html', 'utf-8')
+		, indexBody = fs.readFileSync(__dirname + '/public/index.body.html', 'utf-8')
+		, tpls = fs.readdirSync(__dirname + '/public/tpls')
+		, skins = fs.readdirSync(__dirname + '/public/skins')
 		, data
 		, ext
 		, skin, skinTpls
 	;
 	
+console.log('Serving: ', req.url);
 	res.set('Content-Type', 'text/html;charset=utf-8');
-	res.write( indexTpl.substr(0, idxStart) );
-	
+	res.write( indexHead );
+	//inject xtc.js 
+	res.write( '<script type="text/javascript" src="/xtc.js"></script>' );
 
 	//inject the skins
 	console.log('skins', skins);
 	for(var s=0; s<skins.length; s++) {
 		skin = skins[s];
 		res.write( "\r\n<template id=\"xtc-skin-"+skin+"\">\r\n <script type=\"text/javascript\"> if (!xtc.skins.skin1) xtc.skins.skin1 = { }; </script>\r\n" );
-		skinTpls =  fs.readdirSync(__dirname + '/skins/'+skin);
+		skinTpls =  fs.readdirSync(__dirname + '/public/skins/'+skin);
 		
 		//write the main skin file first
-		res.write( fs.readFileSync(__dirname + '/skins/' + skin + '/xtc-skin-'+skin+'.html') );
+		res.write( fs.readFileSync(__dirname + '/public/skins/' + skin + '/xtc-skin-'+skin+'.html') );
 		
 		//then all the rest...
 		var skinIdx = 'xtc-skin-'+skin+'.html';
 		for(var t=0; t<skinTpls.length; t++) {
 			if ( skinTpls[t] == skinIdx ) continue; //skip main index file that we sent out at the beginning
-			res.write( fs.readFileSync(__dirname + '/skins/' + skin + '/' + skinTpls[t]) );
+			if ( devComponent && skinTpls[t]==devComponent+'.html' ) continue; //skip Dev component skin
+			res.write( fs.readFileSync(__dirname + '/public/skins/' + skin + '/' + skinTpls[t]) );
 		}
 		
 		
@@ -272,17 +281,17 @@ app.get('/*', function (req, res) {
 	for(var i=0; i<tpls.length; i++) {
 		ext = path.extname(tpls[i]);
 		if ( ext != '.html' ) continue;
-		
-		data = fs.readFileSync(__dirname + '/tpls/' + tpls[i]);
+		if ( devComponent && tpls[i]==devComponent+'.html' ) continue; //skip Dev component
+		data = fs.readFileSync(__dirname + '/public/tpls/' + tpls[i]);
 		res.write(data);
 		res.write("\r\n");
 	}
 	
-	
-	
-	res.write( indexTpl.substr(idxStart+xtcTag.length) );
+	res.write('</head><body>');
+	if (!devComponent) res.write( indexBody ); //print body only if we're not in dev output mode
+	res.write('</body></html>');
 	res.end();
-});
+};
 
 
 //Socket.io Config

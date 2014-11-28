@@ -11,6 +11,7 @@ window.fsTools = {
 	
 	baseName: function(fn, trim) {
 		if ( typeof(trim) === 'undefined' ) trim=0;
+		if ( !fn ) fn='/';
 		if ( fn.substr(-1)=='/' ) fn = fn.substr(0, fn.length-1);
 		var idx = fn.lastIndexOf('/');
 		trim++;

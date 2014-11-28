@@ -168,7 +168,11 @@ document.registerElement = function(tag, opts) {
 
 xtc._defBeforeUnload = window.onbeforeunload;
 window.onbeforeunload = function() {
-	if ( !confirm("ok?","you sure?!!!") ) return false;
+	var url = document.location.origin;
+	if ( url!='' && url!='null') {
+console.log('Leaving ', url);
+		if ( !confirm("ok?","you sure?!!!") ) return false;
+	} 
 	
 	if ( xtc._defBeforeUnload ) xtc._defBeforeUnload();
 	for(var i=0; i<xtc._onBeforeUnloadChain.length; i++) xtc._onBeforeUnloadChain[i]();

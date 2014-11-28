@@ -1,0 +1,36 @@
+
+<script type="text/javascript">
+
+	document.registerElement('xtc-components-list', {prototype: Object.create(HTMLInputElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+// 			var tpl = document.getElementById( this.tagName.toLowerCase() );
+// 			var clone = document.importNode(tpl.content, true);
+// 			this.appendChild(clone);
+
+			var me = this;
+			me._xtc={};
+			
+			me._xtc.dataList = document.createElement('datalist');
+			var id = 'datalist-'+xtc.uuid();
+			me._xtc.dataList.setAttribute('id', id);
+			this.setAttribute('list', id);
+			
+			var opts='';
+			for(var k in xtc.registeredElements) {
+				if ( !xtc.registeredElements.hasOwnProperty(k) ) continue;
+				opts += '<option>'+k+'</option>';
+			}
+			me._xtc.dataList.innerHTML = opts;
+
+		} },
+
+		attachedCallback: { value: function() {
+			this.parentNode.insertBefore( this._xtc.dataList, this);
+		} },
+
+
+	})),extends: 'input' });
+
+
+
+</script>

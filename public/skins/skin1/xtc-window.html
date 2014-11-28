@@ -19,7 +19,15 @@
 	:host(.maximizing) {
 		-webkit-transition: all 0.3s ease-in;
 	}
-
+		
+	::content xtc-editor xtc-text-file-location {
+		position: absolute;
+		top: -24px;
+		z-index: 0;
+		right: 80px;
+		width: 70%;
+		flex: none;
+	}
 	
 	xtc-window-wrapper {
 		display: flex;
