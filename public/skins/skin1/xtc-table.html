@@ -44,7 +44,7 @@
 			text-align: left;
 			vertical-align: middle;
 		}
-		
+
 		section>::content>table>tbody>tr>td + td {
 			border-left: 1px solid #ccc;
 		}
@@ -93,31 +93,65 @@
 			border-left: none;
 			padding-left: 6px;
 		}
-		
-		xtc-resizable-handle {
+
+		::content xtc-resize-handle0 {
 			opacity: 1;
 			background-color: red;
 		}
+
+
 
 	</style>
 	<div class="extra-wrap">
 		<div class="th-inner">
 			<content></content>
 		</div>
+
 	</div>
+	<content select="xtc-resize-handle"></content>
 </template>
 
 
 <script type="text/javascript">
 	xtc.skins.skin1['xtc-table>table>thead>tr>th'] = {
 		skinId: 'xtc-table-thead-th',
-
+		skin: function(el, shadowEl) {
+				rect = el.getBoundingClientRect();
+				el.querySelector('::shadow .th-inner ').style.width = rect.width-5+'px';
+		},
 	};
 
 	xtc.skins.skin1['xtc-table'] = {
 		skinId: 'xtc-table',
 		skin: function(el, shadowEl) {
+			var resizing=0;
+			var inner,rect;
+			
+			el.addEventListener('mousedown', function(ev) {
+				if ( ev.target.tagName!='XTC-RESIZE-HANDLE') return;
+				console.log('resizing col', ev.target.parentNode);
+				resizing = ev.target.parentNode.parentNode;
+				inner = resizing.querySelector('::shadow .th-inner ');
+			},true);
+			window.addEventListener('mouseup', function(ev) {
+				resizing=0;
+			},true);
+			el.addEventListener('mousemove', function(ev) {
+				if (!resizing) return;
+// 				var style=window.getComputedStyle(resizing);
+				
+			var ths = el.querySelector('thead').querySelectorAll('th');
+			for(var i=0; i<ths.length; i++) {
+				rect = ths[i].getBoundingClientRect();
+				ths[i].querySelector('::shadow .th-inner ').style.width = rect.width-5+'px';
+			}
 
+				
+// 				rect = resizing.getBoundingClientRect();
+// 				inner.style.width = rect.width-5+'px';
+// 				console.log(resizing, rect.width, style.width);
+			},true);
+			
 		},
 
 		unskin: function(el) {
