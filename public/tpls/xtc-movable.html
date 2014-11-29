@@ -60,7 +60,7 @@ console.log('setting movable', this._xtc.movableHandle);
 		me._xtc.movableContainer = el.parentNode;
 		
 		if ( me._xtc.movingObj.getAttribute('xtc-movable')=='false' ) return;
-		me._xtc.movingObj.style.zIndex++;
+// 		me._xtc.movingObj.style.zIndex++;
 	
 		var dStyle = window.getComputedStyle(el,null);
 	
@@ -83,8 +83,9 @@ console.log('saved presnap pos', me._xtc.preSnap);
 
 		me._xtc.iframes = document.querySelectorAll('body /deep/ iframe');
 		for(var i=0; i<me._xtc.iframes.length; i++) {
-			me._xtc.iframes[i].contentWindow.addEventListener('mouseup', me.mouseup);
-			me._xtc.iframes[i].contentWindow.addEventListener('mousemove', me.mousemove);
+			me._xtc.iframes[i].style.pointerEvents='none';
+// 			contentWindow.addEventListener('mouseup', me.mouseup);
+// 			me._xtc.iframes[i].contentWindow.addEventListener('mousemove', me.mousemove);
 		}
 		
 
@@ -120,15 +121,16 @@ console.log('saved presnap pos', me._xtc.preSnap);
 		me._xtc.overlayEl.style.display = 'none';
 		
 		var el = me._xtc.movingObj;
-		el.style.zIndex--;
+// 		el.style.zIndex--;
 
 		if ( Math.abs(ev.screenX-me._xtc.dragInfo.screenX)<5 && Math.abs(ev.screenY-me._xtc.dragInfo.screenY)<5) return;
 
 
 		//reactivate iframes
 		for(var i=0; i<me._xtc.iframes.length; i++) {
-			me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', me.mouseup);
-			me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', me.mousemove);
+			me._xtc.iframes[i].style.pointerEvents='auto';
+// 			me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', me.mouseup);
+// 			me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', me.mousemove);
 		}
 		
 		var snapped = me._xtc.dragInfo.edgeMarker ? Object.keys(me._xtc.dragInfo.edgeMarker).length : 0;

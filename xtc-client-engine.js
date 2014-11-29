@@ -5,7 +5,7 @@ xtc = {
 	registeredElements: {},
 	_onBeforeUnloadChain: [],
 	mutationObservers: {},
-	
+
 	findAllKeyFrames: function() {
 		// gather all stylesheets into an array
 		var ss = document.styleSheets;
@@ -21,8 +21,8 @@ xtc = {
 		}
 		return res;
 	},
-		
-	
+
+
 	extend: function() {
 		var i = 0, deepCopy=false, obj;
 		if (arguments.length<1) return;
@@ -55,13 +55,13 @@ xtc = {
 		var expires = "expires="+d.toUTCString();
 		document.cookie = cname + "=" + cvalue + "; " + expires;
 	},
-	
+
 	uuid: function() {
 		var d = new Date().getTime();
 		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-				var r = (d + Math.random()*16)%16 | 0;
-				d = Math.floor(d/16);
-				return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (c=='x' ? r : (r&0x7|0x8)).toString(16);
 		});
 		return uuid;
 	},
@@ -71,8 +71,8 @@ xtc = {
 	},
 
 
-	
-	
+
+
 	animateEl: function(el, apply, end, aniOpts) {
 		if ( typeof(aniOpts)=='string' ) aniOpts = {tClass: aniOpts};
 		aniOpts = xtc.extend({
@@ -83,36 +83,36 @@ xtc = {
 			tSpeed: '0.5s',
 			tEffect: 'ease-in-out'
 		}, aniOpts);
-		
+
 		var me = el
-			, prevStyles = {}
-			, style = window.getComputedStyle(me)
-			, savedTransition = style.webkitTransition
-			, savedTStyle = me.style.transform
+		, prevStyles = {}
+		, style = window.getComputedStyle(me)
+		, savedTransition = style.webkitTransition
+		, savedTStyle = me.style.transform
 		;
-		
+
 		if ( !aniOpts.tClass ) me.style.webkitTransition = aniOpts.tOn + ' ' + aniOpts.tSpeed + ' ' + aniOpts.tEffect;
 		else me.classList.add(aniOpts.tClass);
-		
+
 		//apply the user's stuff
 		if ( typeof(apply)=='string') {
 			if ( apply[0]=='-' ) me.classList.remove(apply.substr(1));
 			else me.classList.add(apply);
 		}
 		else if (apply) {
-			
-			
+
+
 			//TODO: replace this part with native animate!!!
-			
+
 			for(var k in apply) {
 				if ( !apply.hasOwnProperty(k) ) continue;
 				prevStyles[k] = style[k];
 				me.style[k] = apply[k];
 			}
-			
-			
+
+
 		}
-		
+
 		var func = function() {
 			if ( !aniOpts.tClass ) me.style.webkitTransition = savedTransition;
 			else me.classList.remove(aniOpts.tClass);
@@ -120,16 +120,16 @@ xtc = {
 			//~ me.removeEventListener("transitionend", func);
 			me.removeEventListener("webkitAnimationEnd", func);
 			me.removeEventListener("webkitTransitionEnd", func);
-			
+
 			if ( end ) end.call(me);
 		};
 		//~ this.addEventListener("animationend", func);
 		//~ this.addEventListener("transitionend", func);
 		me.addEventListener("webkitAnimationEnd", func);
 		me.addEventListener("webkitTransitionEnd", func);
-		
+
 		if ( prevStyles.transform && savedTStyle ) prevStyles.transform = savedTStyle;
-		
+
 		return prevStyles;
 	},
 
@@ -137,13 +137,13 @@ xtc = {
 		while( (el=el.previousSibling) && (el instanceof Text || (notTag && el.tagName==notTag)) );
 		return el;
 	},
-	
+
 	nextEl: function(el, notTag) {
 		while( (el=el.nextSibling) && (el instanceof Text || (notTag && el.tagName==notTag)) );
 		return el;
 	},
-	
-	
+
+
 };
 
 window.addEventListener('touchstart', function(ev) {
@@ -156,11 +156,41 @@ window.addEventListener('touchmove', function(ev) {
 	ev.target.fireEvent('mousemove');
 });
 
-
+console.log('XTC Start...');
 xtc._realRegisterElement = document.registerElement;
-
 document.registerElement = function(tag, opts) {
-//~ console.log('registerElement', tag, opts, xtc._realRegisterElement);
+// 	console.log('registerElement', tag);
+// 	var realAttach = opts.prototype.attachedCallback;
+// 	opts.prototype.attachedCallback = function() {
+// 		console.log('element override attach functional');
+// 		if (realAttach) realAttach();
+// 	};
+	/*
+		var realAttach = opts.prototype.attachedCallback;
+	opts.prototype = Object.create(opts.prototype, {
+		attachedCallback: { value: function() {
+// console.log('ELEMENT ATTACHED', this);
+			var t=this, parents = [];
+			while(t.parentNode) {
+				parents.push(t.parentNode);
+				t=t.parentNode.host ? t.parentNode.host : t.parentNode;
+			}
+			var tags=[];
+			for(var i=parents.length-1; i>-1; i-- ) {
+				if ( parents[i].tagName == 'XTC-SKIN' ) {
+// console.log('mmm skinning attach', this.tagName, this);
+					parents[i].skinNodes([this]);
+				}
+				tags.push(parents[i].tagName);
+			}
+// console.log('over new el, parents:', tags.join('<'));
+			if (realAttach) realAttach.call(this);
+		} },		
+});
+*/
+
+	
+	
 	var newEl = xtc._realRegisterElement.call(document, tag, opts);
 	xtc.registeredElements[ tag ] = newEl;
 	return newEl;
@@ -170,10 +200,10 @@ xtc._defBeforeUnload = window.onbeforeunload;
 window.onbeforeunload = function() {
 	var url = document.location.origin;
 	if ( url!='' && url!='null' && window==window.top) {
-console.log('Leaving ', url);
+		console.log('Leaving ', url);
 		if ( !confirm("ok?","you sure?!!!") ) return false;
 	} 
-	
+
 	if ( xtc._defBeforeUnload ) xtc._defBeforeUnload();
 	for(var i=0; i<xtc._onBeforeUnloadChain.length; i++) xtc._onBeforeUnloadChain[i]();
 	console.log('BYEBYE! :(  foobar= xtc-xsocket');
@@ -187,10 +217,41 @@ HTMLElement.prototype.createShadowRoot = function() {
 	this.shadowRoots.push(shadowRoot);
 	return shadowRoot;
 };
+/*
+window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+// 	if (errorMsg.indexOf('Script error.') > -1) {
+// 		return;
+// 	}
+	var msgStr = 'ERROR: msg='+errorMsg+', line='+lineNumber+', col='+column;
+	var errDiv = document.getElementById('WINDOW-ERRORS');
+	if ( !errDiv ) {
+		errDiv = document.createElement('div');
+		errDiv.id='WINDOW-ERRORS';
+		errDiv.style.width='300px';
+		errDiv.style.height='150px';
+		errDiv.style.position='fixed';
+		errDiv.style.bottom='10px';
+		errDiv.style.left='10px';
+		errDiv.style.border='1px solid red';
+		errDiv.style.backgroundColor = 'rgba(255,0,0,0.90)';
+		if ( document.body )
+			document.body.appendChild(errDiv);
+		else console.log('dafak', document);
+	}
+	var msg = document.createElement('div');
+	msg.innerHTML = msgStr;
+	errDiv.appendChild(msg);
 
+	
+	console.log('ERROR stack:', errorObj.stack);
+// 	console.log( printStackTrace({guess:true}).join("\n") );
+	
+// 	return true;
+};
+*/
 /*
 XtcNode = {};
-	
+
 XtcNode.prototype = {
 	createdCallback: { value: function() {
 		this._xtc={};
@@ -227,12 +288,12 @@ console.log('tpl is shadowed', shadowed, tpl);
 				}
 			}
 		}
-		
+
 		if ( this.globalHook && !xtc.globalHooks.hasOwnProperty(tagName) ) {
 			xtc.globalHooks[tagName] = 1;
 			this.globalHook();
 		}
-		
+
 		if ( this._createdCallback ) this._createdCallback();
 	} },
 
@@ -240,7 +301,7 @@ console.log('tpl is shadowed', shadowed, tpl);
 		var me = this;
 		elTag = elTag.toUpperCase();
 		var obj = xtc.templates[ tagName ];
-		
+
 		this._xtc.__shadowObserver = new MutationObserver(function(mutations) {
 			console.log('mutation observed!', mutations, me);
 			var m, n;
@@ -250,7 +311,7 @@ console.log('tpl is shadowed', shadowed, tpl);
 					n = m.addedNodes[k];
 					if ( n.tagName!=elTag ) continue;
 					var clone = document.importNode(tpl.content, true);
-					
+
 					var shadowRoot = n.createShadowRoot();
 					shadowRoot.appendChild(clone);
 					var shadowElFn = obj && obj.fn ? obj.fn.onShadowedEl : me.onShadowedEl;
@@ -259,15 +320,15 @@ console.log('tpl is shadowed', shadowed, tpl);
 			}
 			//~ if ( me.onMutation ) me.onMutation(mutation);
 		});
-		
+
 		this._xtc.__shadowObserver.observe(this, {childList: true});
 	} },
-	
+
 	attachedCallback: { value: function() {
 	//~ console.log('attachCallback', this._xtc.lastParent , this.parentNode);
 		if ( ! this.__attachedCallback__seen  ) {
 			this.__attachedCallback__seen = true;
-			
+
 			//add our xtc-resizable attribute handler
 			//check for xtc-* and create elements based on them, eg=> xtc-resizable="north south east west" would result in appending 8 <xtc-resizable is="{direction}"/> to the element
 			var attr, tpl;
@@ -327,36 +388,36 @@ console.log('tpl is shadowed', shadowed, tpl);
 			tSpeed: '0.5s',
 			tEffect: 'ease-in-out'
 		}, aniOpts);
-		
+
 		var me = this
 			, prevStyles = {}
 			, style = window.getComputedStyle(me)
 			, savedTransition = style.webkitTransition
 			, savedTStyle = me.style.transform
 		;
-		
+
 		if ( !aniOpts.tClass ) me.style.webkitTransition = aniOpts.tOn + ' ' + aniOpts.tSpeed + ' ' + aniOpts.tEffect;
 		else me.classList.add(aniOpts.tClass);
-		
+
 		//apply the user's stuff
 		if ( typeof(apply)=='string') {
 			if ( apply[0]=='-' ) me.classList.remove(apply.substr(1));
 			else me.classList.add(apply);
 		}
 		else if (apply) {
-			
-			
+
+
 			//TODO: replace this part with native animate!!!
-			
+
 			for(var k in apply) {
 				if ( !apply.hasOwnProperty(k) ) continue;
 				prevStyles[k] = style[k];
 				me.style[k] = apply[k];
 			}
-			
-			
+
+
 		}
-		
+
 		var func = function() {
 			if ( !aniOpts.tClass ) me.style.webkitTransition = savedTransition;
 			else me.classList.remove(aniOpts.tClass);
@@ -364,20 +425,20 @@ console.log('tpl is shadowed', shadowed, tpl);
 			//~ me.removeEventListener("transitionend", func);
 			me.removeEventListener("webkitAnimationEnd", func);
 			me.removeEventListener("webkitTransitionEnd", func);
-			
+
 			if ( end ) end.call(me);
 		};
 		//~ this.addEventListener("animationend", func);
 		//~ this.addEventListener("transitionend", func);
 		this.addEventListener("webkitAnimationEnd", func);
 		this.addEventListener("webkitTransitionEnd", func);
-		
+
 		if ( prevStyles.transform && savedTStyle ) prevStyles.transform = savedTStyle;
-		
+
 		return prevStyles;
 	} },
 
-	
+
 };
 
 
@@ -419,12 +480,12 @@ XTCNode.prototype = Object.create(HTMLElement.prototype, {
 				}
 			}
 		}
-		
+
 		if ( this.globalHook && !xtc.globalHooks.hasOwnProperty(tagName) ) {
 			xtc.globalHooks[tagName] = 1;
 			this.globalHook();
 		}
-		
+
 		if ( this._createdCallback ) this._createdCallback();
 	} },
 
@@ -432,7 +493,7 @@ XTCNode.prototype = Object.create(HTMLElement.prototype, {
 		var me = this;
 		elTag = elTag.toUpperCase();
 		var obj = xtc.templates[ tagName ];
-		
+
 		this._xtc.__shadowObserver = new MutationObserver(function(mutations) {
 			console.log('mutation observed!', mutations, me);
 			var m, n;
@@ -442,7 +503,7 @@ XTCNode.prototype = Object.create(HTMLElement.prototype, {
 					n = m.addedNodes[k];
 					if ( n.tagName!=elTag ) continue;
 					var clone = document.importNode(tpl.content, true);
-					
+
 					var shadowRoot = n.createShadowRoot();
 					shadowRoot.appendChild(clone);
 					var shadowElFn = obj.fn.onShadowedEl || me.onShadowedEl;
@@ -451,15 +512,15 @@ XTCNode.prototype = Object.create(HTMLElement.prototype, {
 			}
 			//~ if ( me.onMutation ) me.onMutation(mutation);
 		});
-		
+
 		this._xtc.__shadowObserver.observe(this, {childList: true});
 	} },
-	
+
 	attachedCallback: { value: function() {
 	//~ console.log('attachCallback', this._xtc.lastParent , this.parentNode);
 		if ( ! this.__attachedCallback__seen  ) {
 			this.__attachedCallback__seen = true;
-			
+
 			//add our xtc-resizable attribute handler
 			//check for xtc-* and create elements based on them, eg=> xtc-resizable="north south east west" would result in appending 8 <xtc-resizable is="{direction}"/> to the element
 			var attr, tpl;
@@ -519,36 +580,36 @@ XTCNode.prototype = Object.create(HTMLElement.prototype, {
 			tSpeed: '0.5s',
 			tEffect: 'ease-in-out'
 		}, aniOpts);
-		
+
 		var me = this
 			, prevStyles = {}
 			, style = window.getComputedStyle(me)
 			, savedTransition = style.webkitTransition
 			, savedTStyle = me.style.transform
 		;
-		
+
 		if ( !aniOpts.tClass ) me.style.webkitTransition = aniOpts.tOn + ' ' + aniOpts.tSpeed + ' ' + aniOpts.tEffect;
 		else me.classList.add(aniOpts.tClass);
-		
+
 		//apply the user's stuff
 		if ( typeof(apply)=='string') {
 			if ( apply[0]=='-' ) me.classList.remove(apply.substr(1));
 			else me.classList.add(apply);
 		}
 		else if (apply) {
-			
-			
+
+
 			//TODO: replace this part with native animate!!!
-			
+
 			for(var k in apply) {
 				if ( !apply.hasOwnProperty(k) ) continue;
 				prevStyles[k] = style[k];
 				me.style[k] = apply[k];
 			}
-			
-			
+
+
 		}
-		
+
 		var func = function() {
 			if ( !aniOpts.tClass ) me.style.webkitTransition = savedTransition;
 			else me.classList.remove(aniOpts.tClass);
@@ -556,26 +617,26 @@ XTCNode.prototype = Object.create(HTMLElement.prototype, {
 			//~ me.removeEventListener("transitionend", func);
 			me.removeEventListener("webkitAnimationEnd", func);
 			me.removeEventListener("webkitTransitionEnd", func);
-			
+
 			if ( end ) end.call(me);
 		};
 		//~ this.addEventListener("animationend", func);
 		//~ this.addEventListener("transitionend", func);
 		this.addEventListener("webkitAnimationEnd", func);
 		this.addEventListener("webkitTransitionEnd", func);
-		
+
 		if ( prevStyles.transform && savedTStyle ) prevStyles.transform = savedTStyle;
-		
+
 		return prevStyles;
 	} },
 
-	
+
 });
 XTCNode.attributeHelpers = {}; //if set, then an element attribute change will call the defined function, eg: XTCNode.attributeHelpers['data-uid']=function(){}; will trigger the function each time an element that is a child of XTCNode changes its data-uid attr!
 
 */
-	
-	
+
+
 // Closure
 (function(){
 

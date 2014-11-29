@@ -1,0 +1,72 @@
+
+<template id="xtc-xplorer">
+	<style>
+		:host {
+			flex: 1 1 auto;
+			align-self: stretch;
+
+			display: flex;
+			flex-flow: column wrap;
+			position: relative;
+		}
+		header {
+			position: absolute;
+			top:0; left: 0; right: 0;
+			height: 24px;
+		}
+		section {
+			position: absolute;
+			top: 25px;
+			left: 0; right: 0; bottom: 0;
+			display: flex;
+			flex-flow: row nowrap;
+		}
+		section>aside {
+			position: relative;
+			flex: 1 1 auto;
+			display: flex;
+		}
+		section>aside>::content>select  {
+			flex: 1 1 auto;
+			align-self: stretch;
+		}
+		section>main {
+			flex: 2 1 64%;
+		}
+		section>main.xtc-resized {
+			flex: 2 1 auto;
+		}
+
+		xtc-resize-handle {
+			background-color: rgba(0,0,0,0.3);
+			opacity: 1 !important;
+		}
+
+	</style>
+	<header>
+		<content select="xtc-text-file-location"></content>
+	</header>
+	<section>
+		<aside>
+			<xtc-resizable data-handles="e"></xtc-resizable>
+			<content select="select[is=xtc-xplorer-shortcuts]"></content>
+		</aside>
+		<main>
+			<content select="div"></content>
+		</main>
+	</section>
+</template>
+
+
+<script type="text/javascript">
+
+	xtc.skins.skin1['xtc-xplorer'] = {
+		skinId: 'xtc-xplorer',
+		skin: function(el, shadowEl) {
+			el.setAttribute('multiple', "true");
+		},
+
+		unskin: function(el) {
+		},
+	};
+</script>

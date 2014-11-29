@@ -1,0 +1,19 @@
+<template id="xtc-xplorer">
+	<xtc-text-file-location></xtc-text-file-location>
+	<select is="xtc-xplorer-shortcuts"></select>
+	<div>
+		TODO FILES
+	</div>
+</template>
+
+<script type="text/javascript">
+
+	document.registerElement('xtc-xplorer', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+		} },
+	}))});
+
+</script>

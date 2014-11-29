@@ -1,0 +1,183 @@
+<style>
+	xtc-table {
+	}
+</style>
+
+<!-- 
+<template id="xtc-table">
+
+</template>
+-->
+<script type="text/javascript">
+
+	document.registerElement('xtc-table', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			// 			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			// 			var clone = document.importNode(tpl.content, true);
+			// 			this.appendChild(clone);
+			var me = this;
+			me.xtc=me._xtc = {};
+
+			me.setupMutationObservers();
+
+			//make sure table is there
+			me.xtc.table = me.querySelector('table');
+			if (!me._xtc.table) {
+				me._xtc.table = document.createElement('table');
+				me.appendChild(me._xtc.table);
+
+			}
+			console.log('auto has tbody/thead?', me._xtc.table.querySelector('tbody,thead'));
+			var draggedTd;
+			var thead = this.querySelector('thead').querySelector('tr');
+			me.xtc.theadTr = thead; //first thead tr
+			me.xtc.tbody = this.querySelector('tbody');
+			me.xtc.tbodyObserver.observe(me.xtc.tbody, {childList: true});
+			me.xtc.theadObserver.observe(thead, {childList: true});
+			thead.ondragover = function(ev) {
+				if ( draggedTd && draggedTd.parentNode==ev.target.parentNode )
+					ev.preventDefault();
+			}
+			thead.ondrop = function(ev) {
+				if (!draggedTd) return;
+				var colId = ev.dataTransfer.getData('xtc-table-col');
+				if ( !colId ) return;
+				var t = ev.target;
+				if ( t.parentNode == draggedTd.parentNode) {
+					if ( t.compareDocumentPosition(draggedTd)&4 ) {
+						t.parentNode.insertBefore(draggedTd, t);
+					}
+					else {
+						if ( t.nextElementSibling ) {
+							t.parentNode.insertBefore(draggedTd, t.nextElementSibling);
+						}
+						else {
+							t.parentNode.appendChild(draggedTd);
+						}
+
+					}
+				}
+				draggedTd = false;
+			};
+			var td,tds = thead.querySelectorAll('th');
+			for(var i=0; i<tds.length;i++) {
+				td=tds[i];
+				td.setAttribute('draggable', true);
+				td.lastIndex = td.insertIndex = td.index();
+
+				console.log('setting index', td, td.lastIndex);
+				td.ondragstart=function(ev) {
+					draggedTd = ev.target;
+					var dt = ev.dataTransfer;
+					dt.dropEffect = 'move';
+					dt.effectAllowed = 'move';
+					dt.setData("xtc-table-col", 1 );
+				};
+			}
+
+
+		} },
+
+		setupMutationObservers: { value: function() {
+			var me = this;
+			me.xtc.theadObserver = new MutationObserver(function(mutations) {
+				var rec,node;
+				for(var i=0; i<mutations.length; i++) {
+					rec = mutations[i];
+					if (rec.type=='childList') {
+						for(var i=0;i<rec.removedNodes.length;i++) {
+							node = rec.removedNodes[i];
+							console.log('removed node', node, node.previousElementSibling);
+							node.removedFrom = rec.target;
+						}
+						for(var i=0; i<rec.addedNodes.length;i++) {
+							node = rec.addedNodes[i];
+							if ( node.removedFrom == rec.target ) { //resorting
+								me.moveCol(node.lastIndex, node.index());
+							}
+							else { //adding new table column!?
+								console.log('new table col being added!?', node);
+								node.insertIndex = node.index();
+							}
+							for(var k=0; k<rec.target.children.length; k++) {
+								node = rec.target.children[k];
+								
+								node.lastIndex = k;
+							}
+							// 							console.log('thead childList added th',i, node, node? node.removedFrom : 'dafak');
+						}
+					}
+				}
+			});
+			
+			me.xtc.tbodyObserver = new MutationObserver(function(mutations) {
+				var rec,node;
+				for(var i=0; i<mutations.length; i++) {
+					rec = mutations[i];
+					if (rec.type=='childList') {
+						for(var i=0;i<rec.removedNodes.length;i++) {
+							node = rec.removedNodes[i];
+// 							console.log('removed node', node, node.previousElementSibling);
+							node.removedFrom = rec.target;
+						}
+						for(var i=0; i<rec.addedNodes.length;i++) {
+							node = rec.addedNodes[i];
+							if ( node.removedFrom == rec.target ) { //resorting
+								
+							}
+							else { //adding new table row!?
+								//we need to check if we have to resort any td's!
+								//first we tag the indexes
+								for(var k=0; k<node.children.length; k++) {
+									node.children[k].insertIndex=k;
+								}
+								var idxShouldBe,child;
+								for(var k=0; k<node.children.length; k++) {
+									child = node.children[k];
+									idxShouldBe = me.xtc.theadTr.children[k].insertIndex;
+// console.log('new row col, idx is=%s, shouldbe=%s',k, idxShouldBe);
+									if (idxShouldBe != child.insertIndex) {
+										for(var z=k+1; z<node.children.length; z++) {
+											if (node.children[z].insertIndex!=idxShouldBe) continue;
+											node.insertBefore( node.children[z], child );
+											break;
+										}
+									}
+								}
+								
+							}
+							
+						}
+					}
+				}
+				
+			});
+
+		}},
+		moveCol: { value: function(fromIdx, toIdx) {
+			var fn,tr, max = this.xtc.theadTr.children.length - 1;
+			if (fromIdx==toIdx || fromIdx>max) return;//daheck?!
+console.log('moveCol %s=>%s (%s)', fromIdx, toIdx, max);
+			if ( toIdx>=max ) { //appendchild
+				fn = function() {
+					tr.appendChild( tr.children[fromIdx] );
+				};
+			}
+			else {
+				if (toIdx>fromIdx) toIdx++;
+				fn = function() {
+					tr.insertBefore( tr.children[fromIdx], tr.children[toIdx]  );
+				};
+			}
+
+			//for each row, move td @ fromIdx to toIdx
+			for(var i=0; i<this.xtc.tbody.children.length; i++) {
+				tr = this.xtc.tbody.children[i];
+				fn(tr);
+			}
+			
+
+		}},
+	}))});
+
+</script>

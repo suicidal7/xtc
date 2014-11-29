@@ -115,7 +115,7 @@ document.registerElement('xtc-resize-handle', {prototype: Object.create(HTMLElem
 					this._xtc.maxHeight = parseInt(style.maxHeight) || 0;
 					this._xtc.minWidth = parseInt(style.minWidth) || 0;
 					this._xtc.minHeight = parseInt(style.minHeight) || 0;
-					this._xtc.xform = (style.position=='absolute' || style.position=='fixed');
+					this._xtc.xform = (style.position=='absolute' || style.position=='fixed' || this._xtc.resizeEl.tagName=='TH');
 					if ( !this._xtc.xform ) {
 						var ps = xtc.previousEl(this._xtc.resizeEl, 'XTC-RESIZABLE');
 						this._xtc.prevEl = ns;
@@ -151,15 +151,17 @@ console.log('nextSibling',this._xtc.resizeEl,ns);
 						window.removeEventListener('mouseup', onMouseUp);
 						window.removeEventListener('mousemove', onMouseMove);
 						for(var i=0; i<me._xtc.iframes.length; i++) {
-							me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', onMouseUp);
-							me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', onMouseMove);
+							me._xtc.iframes[i].style.pointerEvents='auto';
+// 							me._xtc.iframes[i].contentWindow.removeEventListener('mouseup', onMouseUp);
+// 							me._xtc.iframes[i].contentWindow.removeEventListener('mousemove', onMouseMove);
 						}
 					};
 					
 					this._xtc.iframes = document.getElementsByTagName('iframe');
 					for(var i=0; i<this._xtc.iframes.length; i++) {
-						this._xtc.iframes[i].contentWindow.addEventListener('mouseup', onMouseUp);
-						this._xtc.iframes[i].contentWindow.addEventListener('mousemove', onMouseMove);
+						me._xtc.iframes[i].style.pointerEvents='none';
+// 						this._xtc.iframes[i].contentWindow.addEventListener('mouseup', onMouseUp);
+// 						this._xtc.iframes[i].contentWindow.addEventListener('mousemove', onMouseMove);
 					}
 					window.addEventListener('mouseup', onMouseUp);
 					window.addEventListener('mousemove', onMouseMove);

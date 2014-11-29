@@ -1,0 +1,126 @@
+<template id="xtc-table">
+	<style>
+		:host {
+			border: 1px solid #C8C8C8;
+			margin: 0;
+			padding: 0;
+			position: relative;
+			padding-top: 30px;
+			flex: 1 1 100%;
+			align-self: stretch;
+			display: flex;
+			flex-direction: column;
+		}
+
+
+
+		section {
+			overflow-x: hidden;
+			overflow-y: auto;
+			flex: 1 1 auto;
+			align-self: stretch;
+			background-color: rgba(0,0,0,0.75);
+		}
+
+		section>::content>table {
+			-moz-user-select: none;
+			user-select: none;
+			background-color: transparent;
+			width: 100%;
+			overflow-x: hidden;
+			overflow-y: auto;
+			-table-layout: fixed;
+		}
+
+		section>::content>table>thead>tr>th {
+			top: 0;
+			padding: 0 5px;
+			text-align: left;
+		}
+
+		section>::content>table>tbody>tr>td {
+			border-bottom: 1px solid #ccc;
+			padding: 5px;
+			text-align: left;
+			vertical-align: middle;
+		}
+		
+		section>::content>table>tbody>tr>td + td {
+			border-left: 1px solid #ccc;
+		}
+
+		header {
+			background-color: #0D8BF2;
+			height: 30px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			flex: 1 1 auto;
+			align-self: stretch;
+			border-bottom: 1px solid #C8C8C8;
+		}
+	</style>
+
+	<header></header>
+	<section>
+		<content select="table"></content>
+	</section>
+</template>
+
+<template id="xtc-table-thead-th">
+	<style>
+		:host {
+			text-align: center;
+			padding: 0 5px;
+		}
+		.extra-wrap {
+			width: 100%;
+		}
+		.th-inner {
+			position: absolute;
+			top: 0;
+			line-height: 30px;
+			text-align: left;
+			border-left: 1px solid #C8C8C8;
+			padding-left: 5px;
+			margin-left: -5px;
+			color: #FFFFFF;
+		}
+
+
+		:host(:first-child) .th-inner {
+			border-left: none;
+			padding-left: 6px;
+		}
+		
+		xtc-resizable-handle {
+			opacity: 1;
+			background-color: red;
+		}
+
+	</style>
+	<div class="extra-wrap">
+		<div class="th-inner">
+			<content></content>
+		</div>
+	</div>
+</template>
+
+
+<script type="text/javascript">
+	xtc.skins.skin1['xtc-table>table>thead>tr>th'] = {
+		skinId: 'xtc-table-thead-th',
+
+	};
+
+	xtc.skins.skin1['xtc-table'] = {
+		skinId: 'xtc-table',
+		skin: function(el, shadowEl) {
+
+		},
+
+		unskin: function(el) {
+		},
+	};
+</script>
