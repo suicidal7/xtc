@@ -1,0 +1,97 @@
+<template id="xtc-table-viewtype">
+	<style>
+		:host {
+			display: inline-block;
+			position: relative;
+			white-space: nowrap;
+			transition: all 0.3s ease-in;
+		}
+		:host([data-show]:hover),
+		:host([data-show]) {
+			z-index: 2;
+			border: 1px solid #A4F188;
+			padding: 10px;
+			border-radius: 5px;
+			background-color: rgba(0,0,0,0.8);
+		}
+
+		:host(:hover) {
+			border: 1px solid grey;
+		}
+		::content * {
+			display: none;
+		}
+		::content a[selected] {
+			display: block;
+			width: 0px;
+			color: transparent;
+		}
+		:host([data-show]) ::content a[selected] {
+			width: auto;
+			color: #fff;
+		}
+		:host([data-show]) ::content * {
+			display: block !important;
+			width: auto !important;
+		}
+		:host([data-show]) ::content a:hover {
+			background-color: #A4F188;
+			color: #000;
+		}
+		::content a {
+			text-decoration: none;
+			padding-left: 26px;
+			background-position:2px 2px;
+			background-size: 22px 22px;
+			background-repeat: no-repeat;
+			line-height: 24px;
+			color: #fff;
+		}
+		::content a[rel=details] {
+			background-image: url('imgs/win7/shell32_63011.ico');
+		}
+		::content a[rel=xlarge] {
+			background-image: url('imgs/win7/shell32_63001.ico');
+		}
+		::content a[rel=large] {
+			background-image: url('imgs/win7/shell32_63008.ico');
+		}
+		::content a[rel=medium] {
+			background-image: url('imgs/win7/shell32_63009.ico');
+		}
+		::content a[rel=small] {
+			background-image: url('imgs/win7/shell32_63010.ico');
+		}
+		::content a[rel=list] {
+			background-image: url('imgs/win7/shell32_63000.ico');
+		}
+
+		select[is=xtc-table-viewtype] {
+			border-width: 0;
+			width: 42px;
+			height: 28px;
+		}
+		select[is=xtc-table-viewtype]:hover {
+			border-width: 1px;
+		}
+
+		option[value=details] {
+			width: 42px;
+			height: 28px;
+			color: transparent;
+		}
+	</style>
+	<content></content>
+</template>
+
+<script type="text/javascript">
+
+	xtc.skins.skin1['xtc-table-viewtype'] = {
+		skinId: 'xtc-table-viewtype',
+		skin: function(el, shadowEl) {
+			// 			el.classList.add('xtc-popup');
+		},
+
+	};
+
+</script>

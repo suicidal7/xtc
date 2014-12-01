@@ -23,13 +23,25 @@
 		}
 
 		section>::content>table {
-			-moz-user-select: none;
-			user-select: none;
+			-webkit-user-select: none;
 			background-color: transparent;
 			width: 100%;
 			overflow-x: hidden;
 			overflow-y: auto;
-			-table-layout: fixed;
+			table-layout: fixed;
+		}
+		
+		section>::content>table>thead xtc-popup {
+			background-color: rgba(0,0,0,0.65);
+			padding-left: 10px;
+			z-index:1;
+		}
+		section>::content>table>thead xtc-popup.show {
+			display: block;
+		}
+		section>::content>table>thead xtc-popup label {
+			min-width: 100px;
+			display: block;
 		}
 
 		section>::content>table>thead>tr>th {
@@ -43,6 +55,8 @@
 			padding: 5px;
 			text-align: left;
 			vertical-align: middle;
+			-webkit-user-select: none;
+			cursor: default;
 		}
 
 		section>::content>table>tbody>tr>td + td {
@@ -66,6 +80,7 @@
 	<section>
 		<content select="table"></content>
 	</section>
+	
 </template>
 
 <template id="xtc-table-thead-th">
@@ -126,7 +141,7 @@
 		skin: function(el, shadowEl) {
 			var resizing=0;
 			var inner,rect;
-			
+console.log('here?')
 			el.addEventListener('mousedown', function(ev) {
 				if ( ev.target.tagName!='XTC-RESIZE-HANDLE') return;
 				console.log('resizing col', ev.target.parentNode);
@@ -145,12 +160,21 @@
 				rect = ths[i].getBoundingClientRect();
 				ths[i].querySelector('::shadow .th-inner ').style.width = rect.width-5+'px';
 			}
-
 				
 // 				rect = resizing.getBoundingClientRect();
 // 				inner.style.width = rect.width-5+'px';
 // 				console.log(resizing, rect.width, style.width);
 			},true);
+			
+			
+			
+			//detect and pass our scrollable table body event to what we shadowed!
+			var section = shadowEl.querySelector('section');
+			section.addEventListener('scroll', function() {
+				el.fireEvent('scroll', section);
+			});
+
+			
 			
 		},
 

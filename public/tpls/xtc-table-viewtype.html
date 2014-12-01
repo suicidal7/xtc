@@ -1,0 +1,51 @@
+<template id="xtc-table-viewtype">
+	<a href="#" rel="xlarge">Extra Large Icons</a>
+	<a href="#" rel="large">Large Icons</a>
+	<a href="#" rel="medium">Medium Icons</a>
+	<a href="#" rel="small">Small Icons</a>
+	<hr>
+	<a href="#" rel="list">List</a>
+	<a href="#" rel="details" selected>Details</a>
+</template>
+
+<script type="text/javascript">
+	document.registerElement('xtc-table-viewtype', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( 'xtc-table-viewtype' );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+
+			var me = this;
+			me.xtc = {};
+
+			this.addEventListener('click', function(ev) {
+				if ( me.hasAttribute('data-show') ) {
+					me.value = ev.target;
+					me.removeAttribute('data-show');
+					me.fireEvent('change');
+				}
+				else {
+					me.setAttribute('data-show','');
+				}
+				return false;
+			});
+			// 			this.setAttribute('multiple','true')
+		} },
+
+		value: {
+			set: function(v) {
+				var me = this;
+				for(var i=0; i<me.children.length;i++) {
+					me.children[i].removeAttribute('selected');
+				}
+				if ( typeof(v)=='string') v = me.querySelector('[rel='+v+']');
+				v.setAttribute('selected','');
+
+			},
+			get: function() {
+				this.querySelector('[selected]').getAttribute('rel');
+			}
+		},
+	}))});
+
+</script>

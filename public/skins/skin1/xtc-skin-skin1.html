@@ -149,13 +149,25 @@ xtc-movable-overlay {
 	border:  1px solid #A4F188;
 }
 
-
 [data-skin=skin1] /deep/ a.button:hover
 , [data-skin=skin1] /deep/  a.button:focus
 , [data-skin=skin1] /deep/  a.button[selected] {
 	background: #A4F188 !important;
 	color: black !important;
 	outline: 0;
+}
+
+[data-skin=skin1] /deep/ tr:hover {
+		background-color: rgba(255,254,183,0.3);
+}
+		
+[data-skin=skin1] /deep/ tr[selected] {
+	border: 0 !important;
+	border-bottom: 1px solid #EBEAA7 !important;
+	box-shadow: 0px -1px #EBEAA7 !important;
+	padding-top: 0px;
+	background: none repeat scroll 0% 0% #FFFEB7 !important;
+	color: #2B2B2B !important;
 }
 
 [data-skin=skin1] /deep/ a.button {

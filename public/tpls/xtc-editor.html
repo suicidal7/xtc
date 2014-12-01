@@ -189,6 +189,10 @@ console.log('Truing to run:', uid);
 	} },
 	
 	runXtcComponentDemo: { value: function(pillName) {
+		window.open('/demo-'+pillName, pillName, 'width=450,height=300,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no');
+		
+		return;
+		
 		console.log('running component demo...');
 		var desktop = this.nearest('xtc-desktop', true);
 		if (!desktop) return;

@@ -1,0 +1,134 @@
+<template id="xtc-xplorer-filesview">
+	<style>
+		:host {
+			display: block;
+			position: relative;
+			flex-flow: row wrap;
+			overflow: hidden;
+		}
+		header {
+			position: absolute;
+			top: 0;
+			height: 26px;
+			left: 0; right: 0;
+			background-color: rgba(255,255,255,0.3);
+
+		}
+		main {
+			left: 0; right: 0;
+			top: 28px;
+			bottom: 0;
+			position: absolute;
+			display: flex;
+		}
+		main>xtc-table {
+			flex: 1 1 auto;
+			align-self: stretch;
+		}
+		
+		::content>xtc-table-viewtype {
+			float: right;
+		}
+
+		::content>xtc-table td {
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		::content tr[data-type]>td:first-of-type {
+			-padding-left: 28px;
+			line-height: 15px;
+		}
+
+		::content tr[data-type]>td:first-of-type:before {
+			font-size: 22px;
+			content: '__';
+			color: transparent;
+			background-image: url('imgs/mimetypes/32px/_blank.png');
+			background-repeat: no-repeat;
+			background-size:22px 22px;
+			background-position: 0px 0px;
+			background-color: transparent;
+			position: relative;
+			padding-right: 5px;
+			/*left: -26px;*/
+			top: 5px;
+			/*width: 22px;
+			height: 22px; */
+		}
+
+		::content tr[data-type=folder]>td:first-of-type:before {
+			/* 			background-image: url('imgs/Betelgeuse/22x22/mimetypes/inode-directory.png'); */
+			background-image: url('imgs/fatcow/32x32/folder.png');
+
+		}
+
+		::content tr[data-type].symlink>td:first-of-type:before {
+			content: url('imgs/fatcow/16x16/link.png');
+			padding-left: 5px;
+		}
+
+
+
+	</style>
+	<header>
+		<content select="xtc-table-viewtype"></content>
+	</header>
+	<main>
+		<content select="xtc-table"></content>
+	</main>
+</template>
+
+<template id="xtc-xplorer-filesview-symlink">
+	<style>
+		:host {
+			position: relative;
+		}
+		span {
+			background-size: 70%;
+			background-image: url('imgs/fatcow/32x32/link.png');		
+			background-repeat: no-repeat;
+			background-position: top left;
+			display: inline-block;
+			width: 22px;
+			height: 22px;
+			left: 5px;
+			position: relative; 
+			top: 10px;
+		}
+	</style>
+	<span></span>
+	<content></content>
+</template>
+
+<template id="xtc-xplorer-filesview-viewtype-btn">
+	<style>
+		xtc-icon {
+			width: 22px;
+			height: 22px;
+			margin-top: 5px;
+			margin-right: 10px;
+		}
+		:host {
+			float: right;
+		}
+		:host(.details) xtc-icon {
+			background-image: url('imgs/win7/shell32_63011.ico');
+		}
+	</style>
+	<xtc-icon-button></xtc-icon-button>
+</template>
+
+<script type="text/javascript">
+	xtc.skins.skin1['xtc-xplorer-filesview a[href="#viewtype"]'] = {
+		skinId: 'xtc-xplorer-filesview-viewtype-btn',
+	};
+
+	xtc.skins.skin1['xtc-xplorer-filesview'] = {
+		skinId: 'xtc-xplorer-filesview',
+		// 		skin: function(el, shadowEl) {
+		// 		},
+	};
+
+
+</script>

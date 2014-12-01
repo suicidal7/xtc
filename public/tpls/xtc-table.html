@@ -9,7 +9,8 @@
 </template>
 -->
 <script type="text/javascript">
-
+//todo: move hiden col to end!
+	
 	document.registerElement('xtc-table', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
 		createdCallback: { value: function() {
 			// 			var tpl = document.getElementById( this.tagName.toLowerCase() );
@@ -17,6 +18,12 @@
 			// 			this.appendChild(clone);
 			var me = this;
 			me.xtc=me._xtc = {};
+			me.xtc.bufferedRows = [];
+			me.xtc.limitPerScroll = 100;
+			me.xtc.scrollView = me; //should get replaced by shadows using fireEvent('scroll', scrollViewEl);
+			me.xtc.dummyDiv = document.createElement('tbody');
+
+			me.xtc.selectableRows = me.getAttribute('data-selectable');
 
 			me.setupMutationObservers();
 
@@ -29,8 +36,8 @@
 			}
 			console.log('auto has tbody/thead?', me._xtc.table.querySelector('tbody,thead'));
 			var draggedTd;
-			var thead = this.querySelector('thead').querySelector('tr');
-			me.xtc.theadTr = thead; //first thead tr
+			me.xtc.thead = this.querySelector('thead');
+			var thead = me.xtc.theadTr = me.xtc.thead.querySelector('tr'); //first thead tr
 			me.xtc.tbody = this.querySelector('tbody');
 			me.xtc.tbodyObserver.observe(me.xtc.tbody, {childList: true});
 			me.xtc.theadObserver.observe(thead, {childList: true});
@@ -64,6 +71,14 @@
 				td=tds[i];
 				td.setAttribute('draggable', true);
 				td.lastIndex = td.insertIndex = td.index();
+				td.colHidden = td.hasAttribute('data-hidden');
+				if ( td.colHidden ) td.hide();
+				
+				if ( td.hasAttribute('data-resizable') ) {
+					var rh = document.createElement('xtc-resizable');
+					rh.setAttribute('data-handles', 'e');
+					td.appendChild(rh);
+				}
 
 				console.log('setting index', td, td.lastIndex);
 				td.ondragstart=function(ev) {
@@ -75,7 +90,69 @@
 				};
 			}
 
+			//autoload cached buffer when scrolling into view
+			me.addEventListener('scroll', function( ev ) {
+				if (ev.userData) me.xtc.scrollView = ev.userData;
+				if ( me.xtc.bufferedRows.length && me.isScrollNearEnd() ) {
+					console.log('scrolling detected loading next bulk', ev.userData);
+					for(var count=0;count<me.xtc.limitPerScroll && me.xtc.bufferedRows.length; count++) {
+						me._addRow( me.xtc.bufferedRows.shift()  )
+					}
+				}
+			}, true);
 
+			//popup menu to show/hide cols
+			me.xtc.theadTr.addEventListener('contextmenu', function(ev) {
+				console.log(ev);
+				ev.stopPropagation();
+				ev.preventDefault();
+				var popup = me.xtc.thead.querySelector('xtc-popup') || document.createElement('xtc-popup');
+				var lbl, th;
+				//popup.setAttribute('data-sticky','true');
+				popup.innerHTML='';
+
+				for(var thIdx=0; thIdx<me.xtc.theadTr.children.length; thIdx++) {
+					th = me.xtc.theadTr.children[thIdx];
+					lbl = document.createElement('label');
+					lbl.innerHTML='<input type="checkbox" '+(th.colHidden ? '' :'checked')+'>'+th.innerHTML;
+					popup.appendChild(lbl);
+				}
+
+				if (!popup.parentNode) {
+					popup.addEventListener('change', function(ev) {
+						me.showCol(ev.target.parentNode.index(), !ev.target.checked);
+					});
+					me.xtc.thead.appendChild(popup);
+				}
+				//popup.show({my:'top left', at: 'top left', of: me.xtc.theadTr});
+				popup.show();
+
+				return false;
+			});
+
+			me.setupSelectionEvents();
+		} },
+
+		attachedCallback: { value: function() {
+
+		} },
+
+		setupSelectionEvents: { value: function() {
+			var me = this;
+			if ( !me.xtc.selectableRows ) return;
+
+			me.xtc.tbody.addEventListener('click', function(ev) { 
+				var t = ev.target.tagName=='TD' ? ev.target.parentNode : ev.target;
+				if ( (!ev.ctrlKey || me.xtc.selectableRows!='multi') && me.xtc.lastSel && me.xtc.lastSel!=t) {
+					var sels = ( me.xtc.selectableRows!='multi' ? [ me.xtc.lastSel ] : me.xtc.tbody.querySelectorAll('[selected]') );
+					for(var sIdx=0; sIdx<sels.length; sIdx++) {
+						sels[sIdx].removeAttribute('selected');
+					}
+				}
+				me.xtc.lastSel = t;
+				t.setAttribute('selected','selected');
+				me.fireEvent('change');
+			});
 		} },
 
 		setupMutationObservers: { value: function() {
@@ -101,7 +178,7 @@
 							}
 							for(var k=0; k<rec.target.children.length; k++) {
 								node = rec.target.children[k];
-								
+
 								node.lastIndex = k;
 							}
 							// 							console.log('thead childList added th',i, node, node? node.removedFrom : 'dafak');
@@ -109,55 +186,57 @@
 					}
 				}
 			});
-			
+
 			me.xtc.tbodyObserver = new MutationObserver(function(mutations) {
 				var rec,node;
-				for(var i=0; i<mutations.length; i++) {
-					rec = mutations[i];
+				for(var mutIdx=0; mutIdx<mutations.length; mutIdx++) {
+					rec = mutations[mutIdx];
 					if (rec.type=='childList') {
-						for(var i=0;i<rec.removedNodes.length;i++) {
-							node = rec.removedNodes[i];
-// 							console.log('removed node', node, node.previousElementSibling);
+						for(var nodeIdx=0;nodeIdx<rec.removedNodes.length;nodeIdx++) {
+							node = rec.removedNodes[nodeIdx];
+							// 							console.log('removed node', node, node.previousElementSibling);
 							node.removedFrom = rec.target;
 						}
-						for(var i=0; i<rec.addedNodes.length;i++) {
-							node = rec.addedNodes[i];
+						for(var nodeIdx=0; nodeIdx<rec.addedNodes.length;nodeIdx++) {
+							node = rec.addedNodes[nodeIdx];
 							if ( node.removedFrom == rec.target ) { //resorting
-								
+
 							}
 							else { //adding new table row!?
 								//we need to check if we have to resort any td's!
 								//first we tag the indexes
-								for(var k=0; k<node.children.length; k++) {
-									node.children[k].insertIndex=k;
+								for(var childIdx=0; childIdx<node.children.length; childIdx++) {
+									node.children[childIdx].insertIndex=childIdx;
 								}
-								var idxShouldBe,child;
-								for(var k=0; k<node.children.length; k++) {
-									child = node.children[k];
-									idxShouldBe = me.xtc.theadTr.children[k].insertIndex;
-// console.log('new row col, idx is=%s, shouldbe=%s',k, idxShouldBe);
+								var idxShouldBe,child,th;
+								for(var childIdx=0; childIdx<node.children.length; childIdx++) {
+									child = node.children[childIdx];
+									th = me.xtc.theadTr.children[childIdx];
+									idxShouldBe = th.insertIndex;
+									if (th.colHidden) child.hide();
+									// console.log('new row col, idx is=%s, shouldbe=%s',childIdx, idxShouldBe);
 									if (idxShouldBe != child.insertIndex) {
-										for(var z=k+1; z<node.children.length; z++) {
-											if (node.children[z].insertIndex!=idxShouldBe) continue;
-											node.insertBefore( node.children[z], child );
+										for(var siblingIdx=childIdx+1; siblingIdx<node.children.length; siblingIdx++) {
+											if (node.children[siblingIdx].insertIndex!=idxShouldBe) continue;
+											node.insertBefore( node.children[siblingIdx], child );
 											break;
 										}
 									}
 								}
-								
+
 							}
-							
+
 						}
 					}
 				}
-				
+
 			});
 
 		}},
 		moveCol: { value: function(fromIdx, toIdx) {
 			var fn,tr, max = this.xtc.theadTr.children.length - 1;
 			if (fromIdx==toIdx || fromIdx>max) return;//daheck?!
-console.log('moveCol %s=>%s (%s)', fromIdx, toIdx, max);
+			console.log('moveCol %s=>%s (%s)', fromIdx, toIdx, max);
 			if ( toIdx>=max ) { //appendchild
 				fn = function() {
 					tr.appendChild( tr.children[fromIdx] );
@@ -175,9 +254,85 @@ console.log('moveCol %s=>%s (%s)', fromIdx, toIdx, max);
 				tr = this.xtc.tbody.children[i];
 				fn(tr);
 			}
-			
+
 
 		}},
+
+		//while we can add rows normally to table,
+		// we can use this to let the table cache rows and display them on scroll...
+		// expects row to be simply tr and a bunch of <tr><td>...</td>...</tr>
+		addRow: { value: function(trContent) {
+			var me = this;
+			var currCount = me.xtc.tbody.children.length;
+			if ( me.xtc.bufferedRows.length ) {
+				me.xtc.bufferedRows.push(trContent);
+			}
+			else {
+				// console.log('adding', currCount);
+				if (currCount>=me.xtc.limitPerScroll ) {
+					me.xtc.bufferedRows.push(trContent);
+				}
+				else {
+					if ( !me.xtc.scrollView.scrollTop || me.isScrollNearEnd()  ) {
+						me._addRow(trContent);
+					}
+					else {
+						me.xtc.bufferedRows.push(trContent);
+					}
+				}
+			}
+
+		} },
+
+		isScrollNearEnd: { value: function() {
+			var me = this;
+			if (!me.xtc.scrollView.scrollTop) return false;
+			var height = me.xtc.scrollView.getBoundingClientRect().height;
+			// console.log('scrollneeded?', me.xtc.scrollView.scrollTop+height >= me.xtc.scrollView.scrollHeight-40);
+			return me.xtc.scrollView.scrollTop+height >= me.xtc.scrollView.scrollHeight-40;
+		} },
+
+		_addRow: { value: function(trContent) {
+			this.xtc.dummyDiv.innerHTML = trContent;
+			this.xtc.tbody.appendChild( this.xtc.dummyDiv.querySelector('tr') );
+		} },
+
+		clearAllRows: { value: function() { 
+			this.xtc.tbody.innerHTML='';
+		} }, 
+		
+		showCol: { value: function(idx, hide) { 
+			console.log('showCol', idx, hide);
+			var fn = hide ? 'hide' : 'show';
+			var colHead = this.xtc.theadTr.children[idx];
+			colHead.colHidden = hide;
+			colHead[fn]();
+			for(var i=0; i<this.xtc.tbody.children.length; i++) {
+				this.xtc.tbody.children[i].children[idx][fn]();
+			}
+			if ( hide ) { //move to end
+				colHead.parentNode.appendChild(colHead);
+			}
+		}},
+
+		value: {
+			set: function(v) {
+				var me = this;
+				if ( !(v instanceof Array) ) v = [ v ];
+				var sels = ( me.xtc.selectableRows!='multi' ? [ me.xtc.lastSel ] : me.xtc.tbody.querySelectorAll('[selected]') );
+				for(var sIdx=0; sIdx<sels.length; sIdx++) {
+					sels[sIdx].removeAttribute('selected');
+				}
+
+				for(var i=0; i<v.length; i++) {
+					v[i].setAttribute('selected','selected');
+				}
+			},
+			get: function() {
+				var me = this;
+				return me.xtc.selectableRows=='multi' ? me.xtc.tbody.querySelectorAll('[selected]') : [me.xtc.lastSel];
+			}
+		}
 	}))});
 
 </script>

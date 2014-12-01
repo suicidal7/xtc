@@ -44,6 +44,14 @@ function launch_terminal(tid) {
 fs.istat = function(path) {
 	var st = fs.lstatSync(path);
 	st.mimetype = mime.lookup(path);
+	if (st.isSymbolicLink()) {
+		st = fs.statSync(path);
+		st.type = (st.isDirectory() ? 'folder' : ( st.isFile() ? 'file' : 'other' ) );
+		st.symlink=fs.realpathSync(path);
+	}
+	else {
+		st.type = (st.isDirectory() ? 'folder' : ( st.isFile() ? 'file' : 'other' ) );
+	}
 	return st;
 }
 
@@ -55,7 +63,7 @@ fs.glob = function(path, _opts) {
 		files: true,
 		hidden: false,
 	}, _opts);
-//~ console.log('fs.glob', path, _opts);
+console.log('fs.glob', path, _opts);
 	var st, f,
 		regExp = opts.filter=='*' || opts.filter=='' ? false : new RegExp('('+opts.filter.replace(/;/g,'|').replace(/\./g,'\\.').replace(/\*/g,'.*')+')$');
 		files = fs.readdirSync(path)
@@ -86,7 +94,6 @@ fs.glob = function(path, _opts) {
 			st.mtime = st.mtime.getTime();
 			st.atime = st.atime.getTime();
 			st.ctime = st.ctime.getTime();
-			st.type = (st.isDirectory() ? 'folder' : ( st.isFile() ? 'file' : ( st.isSymbolicLink() ? 'symlink' : 'other' ) ) );
 			files[i] = st;
 		}
 	}

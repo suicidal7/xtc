@@ -19,6 +19,11 @@
     "less": "~2.0.0",
     "extend": "~2.0.0",
     "mime": "~1.2.11",
-    "waitpid": "~0.1.1"
+    "waitpid": "~0.1.1",
+    "thumbbot": "~0.3.0",
+    "phantomjs": "~1.9.12",
+    "imagemagick": "~0.1.3",
+    "ffmpeg": "0.0.4",
+    "exec": "~0.1.2"
   }
 }

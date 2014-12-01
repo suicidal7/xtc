@@ -13,6 +13,7 @@ document.registerElement('xtc-popup', {prototype: Object.create(HTMLElement.prot
 
 		var me = this;
 		var onClick = function(ev) {
+			if (me.contains(ev.target) && me.getAttribute('data-sticky')=='true') return;
 			window.removeEventListener('click', onClick);
 			me.hide();
 		};

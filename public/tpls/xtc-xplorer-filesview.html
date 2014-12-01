@@ -1,0 +1,144 @@
+<style>
+	xtc-xplorer-filesview {
+		flex: 1 1 auto;
+		align-self: stretch;
+	}
+</style>
+
+<template id="xtc-xplorer-filesview">
+	<select>
+		<option>File Types (*)</option>
+	</select>
+	<xtc-table-viewtype></xtc-table-viewtype>
+	<xtc-table data-selectable="multi">
+		<table>
+			<thead>
+				<tr>
+					<th data-resizable width="100">Filename</th>
+					<th data-resizable width="50">Size</th>
+					<th data-resizable width="80">Modified</th>
+					<th data-hidden>Access</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</xtc-table>
+</template>
+
+<script type="text/javascript">
+
+	document.registerElement('xtc-xplorer-filesview', {prototype: Object.create(HTMLElement.prototype, xtc.extend( {}, {
+		createdCallback: { value: function() {
+			var tpl = document.getElementById( this.tagName.toLowerCase() );
+			var clone = document.importNode(tpl.content, true);
+			this.appendChild(clone);
+			var me = this;
+			me.xtc = {};
+			me.xtc.table = me.querySelector('xtc-table');
+
+			var viewTypeBtn = me.querySelector('a[href="#viewtype"]');
+			if ( viewTypeBtn ) {
+				viewTypeBtn.addEventListener('click', function() {
+
+				});
+			}
+		} },
+
+		attachedCallback: { value: function() {
+			this.socketIO = this.closest('xtc-xsocket', true);
+			if ( ! this.socketIO ) {
+				console.log('xplorer-filesview: failed to find a socket, creating our own...');
+				this.socketIO = document.createElement('xtc-xsocket');
+				this.appendChild(this.socketIO);
+				this.socketIO.setAttribute('data-x-host', document.location.origin.replace('http://','ws://').replace('https://','wss://') );
+			}
+
+
+			if ( window.name == this.tagName.toLowerCase() ) {
+				var me = this;
+				setTimeout(function() {
+					me.value = '/home/georges';
+					console.log('setting val', me.value);
+				}, 1000);
+				// 				me.value = '/home/georges/Pictures/Wallpapers';
+
+			}
+		}},
+
+		value: {
+			set: function(v) {
+				var me = this;
+				var stat;
+				this._val = {baseName: '', dirName: '', };
+				if ( v instanceof Array ) {
+					stat = v[1];
+					v = v[0];
+				}
+				console.log('xplorer-filesview: setting val=', v, stat, me.socketIO);
+				var onStat = function(res) {
+					console.log('onStat res', res);
+					if ( fsTools.nodeType( res.d.mode ) == 'folder' ) {
+						me._val.dirName = v;
+						me._val.baseName = '';
+					}
+					else {
+						me._val.dirName = fsTools.dirName(v);
+						me._val.baseName = fsTools.baseName(v);
+					}
+					var path = me._val.dirName;
+					me.socketIO.send('js', [ 'fs.glob', path, {filter: '*', details: true} ], function(res) {
+						me.xtc.table.clearAllRows();
+						console.log('fs.glob', path, res);
+						if ( !res.d ) res.d=[];
+						//sort results
+						res.d = res.d.sort(function(a,b) {
+							var afolder = (a.type=='folder')
+							, bfolder = (b.type=='folder');
+							if ( afolder==bfolder ) {
+								return a.name > b.name ? 1 : -1;
+							}
+							return afolder ? -1 : 1;
+						});
+
+						//add files to table
+						for(var i=0; i<res.d.length; i++) {
+							me.addFile(path, res.d[i]);
+						}
+					});
+				};
+				console.log('sending lstat',me.socketIO);
+				//first lstat the target to figure out if its a folder or what...
+				if ( stat ) onStat({d: stat});
+				else me.socketIO.send('js', [ 'fs.lstatSync', v ], onStat);
+			},
+			get: function(v) {
+				var me = this;
+				var selTrs = me.xtc.table.value;
+				var sel = [];
+				for(var i=0; i<selTrs.length; i++) {
+					sel.push( selTrs[i].getAttribute('data-uid') );
+				}
+				return sel;
+			}
+		},
+
+		addFile: { value: function(path, file) {
+			var dt = new Date(file.mtime);
+			file.mtime = String("00" + dt.getDate()).slice(-2)+'/'+String("00" + (dt.getMonth()+1)).slice(-2)+'/'+dt.getFullYear();
+			file.size = fsTools.formatSize( file.size );
+			var uid = path + '/' + file.name;
+			var ext = fsTools.ext(file.symlink || file.name);
+
+			var tr = '<tr data-uid="'+uid+'" data-type="'+file.type+'" class="'+ext+' '+(file.symlink?'symlink':'')+'">'
+			+'<td>'+file.name+'</td>'
+			+'<td>'+file.size+'</td>'
+			+'<td>'+file.mtime+'</td>'
+			+'<td>'+file.mode+'</td>'
+			+'</tr>';
+			this.xtc.table.addRow(tr);
+		} },
+
+	}))});
+
+</script>

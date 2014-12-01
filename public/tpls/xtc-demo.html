@@ -71,7 +71,7 @@
 
 	</xtc-xdiff>
  -->
-	<xtc-table>
+	<xtc-table data-selectable="multi">
 		<table>
 		<thead>
 			<tr>
@@ -175,6 +175,15 @@
 
 			var me = this;
 			me._xtc={};
+			
+			
+			setTimeout(function() {
+				var tr, tbl=me.querySelector('xtc-table');
+				
+				for(var i=0; i<3000; i++) {
+					tbl.addRow('<tr data-uid="fileid-'+i+'"><td>b1-'+i+'</td><td>b2-'+i+'</td><td>b3-'+i+'</td><td>b4-'+i+'</td></tr>');
+				}
+			}, 2000);
 
 			//~ this.setAttribute('tabindex','-1');
 		} },
