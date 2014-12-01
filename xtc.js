@@ -423,10 +423,11 @@ console.log('USERINFO', usr, nfo);
 		env: {'HOME': nfo.home},
 		cwd: nfo.home,
 		detached: false,
-		uid: nfo.uid,
-		gid: nfo.gid,
+// 		uid: nfo.uid,
+// 		gid: nfo.gid,
 	};
-	var child = child_process.fork(__dirname+'/xtcWS.js', [], cp_opt);
+	var child = child_process.fork(__dirname+'/xtcWS.js', [usr, nfo.gid], cp_opt);
+	
 	child.on('message', function(m) {
 //~ console.log('child message:',m.o=='access_check', m);
 		if ( m.o=='access_check' ) return onFileAccessCheckResult(m);

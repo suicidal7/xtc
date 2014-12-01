@@ -1,3 +1,15 @@
+console.log(process.execArgv);
+var usr=process.argv[2];
+var grp=parseInt(process.argv[3]);
+console.log('setting', usr,grp);
+process.initgroups(usr, grp);
+
+process.setgid(grp);
+process.setuid(usr);
+
+console.log('wsclient:', process.getuid(), process.getgroups());
+
+
 var pty = require('pty.js')
 	, fs = require('fs')
 	, extend = require('extend')
@@ -10,11 +22,13 @@ var xpose = {
 	pty: pty,
 	fs: fs
 };
+//process.initgroups(process.getuid(), process.getgid());
 
 function launch_terminal(tid) {
 	process.env['TERM'] = 'xterm-color';
 	
-	var term =  pty.spawn('bash', ['-i', '-l'], {
+// 	var term =  pty.spawn('bash', ['-i', '-l'], {
+	var term =  pty.spawn('bash', [], {
 		name: 'xterm-color',
 		cols: 80,
 		rows: 30,
