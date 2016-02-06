@@ -54,12 +54,13 @@ document.registerElement('xtc-xsocket', {prototype: Object.create(HTMLElement.pr
 			this._xtc.skt.disconnect();
 			delete this._xtc.skt;
 		}
+
 		if ( typeof(host)!='string' || !host.match(/^(wss|ws):\/\//) ) return;
 console.log('xtc-xsocket[%s]: io.connect host=>',this._xtc.uid, host);
 
 		this._xtc.host = host;
 		this._xtc.skt = io.connect(host, {'force new connection': true});
-		
+console.log('xtc-xsocket[%s]: io.connect skt=>',this._xtc.uid, this._xtc.skt);
 		var me = this;
 		
 		var serveCallbacks = function( key, data ) {

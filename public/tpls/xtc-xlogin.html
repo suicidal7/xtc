@@ -79,7 +79,7 @@ document.registerElement('xtc-xlogin', {prototype: Object.create(HTMLElement.pro
 				xtc.animateEl(me.querySelector('fieldset'), 'noeffect',null,'shake');
 			}
 			else {
-				var skt = me.closest( me.getAttribute('data-xsocket-closest') );
+				var skt = me.nearest( me.getAttribute('data-xsocket-closest') );
 				if ( skt ) {
 					skt.login(user, pwd);
 				}

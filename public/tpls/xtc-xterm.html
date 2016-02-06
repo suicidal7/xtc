@@ -47,7 +47,7 @@ document.registerElement('xtc-xterm', {prototype: Object.create(HTMLElement.prot
 		this._xtc.initialized = 1;
 	
 		var me = this;
-		this._xtc.xskt = this.closest( this.getAttribute('data-xsocket') || 'xtc-xsocket' );
+		this._xtc.xskt = this.nearest( this.getAttribute('data-xsocket') || 'xtc-xsocket' );
 		if ( !this._xtc.xskt ) {
 			console.log('failed to find a socket to use');
 			return;

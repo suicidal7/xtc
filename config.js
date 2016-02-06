@@ -1,5 +1,5 @@
 module.exports = {
 	key: '../cert/server.key',
 	cert: '../cert/server.crt',
-	port: 443,
+	port: 1443,
 };

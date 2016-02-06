@@ -154,6 +154,8 @@ console.log('http file mode', mode, req.responseText.length);
 console.log('resolveMode', file,mime);
 		var ext = fsTools.ext(file);
 		if (ext=='php' ) return 'text/x-php';
+		if (ext=='pl') return 'text/x-perl';
+		
 		var base = fsTools.baseName(file);
 		if ( base == '.bashrc' || base == '.profile' ) return 'shell';
 		if (mime) {

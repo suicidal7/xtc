@@ -7,11 +7,13 @@ Node.prototype.index = function() {
 Node.prototype.nearest = function(sel,shadowBreak) {
 	for(var p=this; (!p.matches || !p.matches(sel)) && (p.parentNode || (shadowBreak && p.host)); p = p.host ? p.host : p.parentNode) {}
 	if ( p.matches && p.matches(sel) ) return p;
+	if (p && p.querySelector) return p.querySelector(sel);
 };
 
 Node.prototype.closest = function(sel) {
 	var p = this;
 	while(!p.matches(sel) && !p.querySelector(sel) && p.parentNode && p.parentNode.matches) p = p.parentNode;
+console.log('closest',p,sel);
 	return p.matches(sel) ? p : p.querySelector(sel);
 };
 

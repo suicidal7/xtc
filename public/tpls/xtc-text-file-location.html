@@ -63,7 +63,7 @@ document.registerElement('xtc-text-file-location', {prototype: Object.create(HTM
 	
 	attachedCallback: { value: function() {
 //~ console.log('nearest', this, this.closest('xtc-xsocket', true));
-		this.socketIO = this.closest('xtc-xsocket', true); //todo make configurable with attribute or somethin
+		this.socketIO = this.nearest('xtc-xsocket', true); //todo make configurable with attribute or somethin
 	} },
 	
 	//todo: detach from socket?
